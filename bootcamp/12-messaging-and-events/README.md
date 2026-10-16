@@ -23,7 +23,9 @@ ack got lost". So every broker picks one side:
 | at-least-once | messages duplicated | ack after processing; redeliver on doubt | an **idempotent consumer** |
 | "exactly-once" | nothing, *inside one system* | at-least-once + dedupe, or a transaction spanning offset and effect | dedupe or transactions |
 
-SQS, RabbitMQ, Kafka and Pub/Sub all default to at-least-once.
+SQS standard queues, Google Pub/Sub, RabbitMQ with manual acks and a
+Kafka consumer that commits offsets after processing are all
+at-least-once.
 "Exactly-once" in practice means exactly-once **effect**:
 
 ```java
@@ -134,7 +136,7 @@ when retries run out, the saga is **STUCK** and says so.
 | --- | --- | --- |
 | tell many services something happened | pub/sub topic | SNS, Kafka topics, RabbitMQ topic exchanges, Redis PUBLISH |
 | producer faster than consumer | bounded queue + overflow policy | BlockingQueue, Reactor `onBackpressure*`, Akka `OverflowStrategy` |
-| broker delivers twice | idempotent consumer / inbox table | message-id dedupe, Kafka idempotent producer |
+| broker delivers twice | idempotent consumer / inbox table | message-id dedupe, a transactional inbox table |
 | a message always fails | retry to the back, then DLQ | SQS `maxReceiveCount` + redrive, RabbitMQ DLX |
 | DB write + publish must agree | transactional outbox + relay | Debezium CDC, polling publisher |
 | "do this later" | delay queue / scheduler | SQS `DelaySeconds`, Sidekiq scheduled set, `ScheduledExecutorService` |
