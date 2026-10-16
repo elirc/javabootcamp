@@ -149,9 +149,11 @@ class Exercise {
             q.submit("p");
             q.submit("q");
             q.drain(failing(Set.of("p", "q")));
+            q.submit("r");
             eq(q.redrive(), 2);
             eq(q.deadLetters(), List.of());
-            eq(q.pending(), 2);
+            eq(q.pending(), 3);
+            eq(q.processNext(failing(Set.of())), "ok r");
             eq(q.processNext(failing(Set.of("p"))), "retry p (attempt 1)");
             eq(q.processNext(failing(Set.of())), "ok q");
         });
