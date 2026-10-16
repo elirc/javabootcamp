@@ -103,6 +103,7 @@ class Exercise {
         test("refuses a code too big for a long instead of wrapping", () -> {
             raises(IllegalArgumentException.class, () -> decode("aZl8N0y58M8"));
             raises(IllegalArgumentException.class, () -> decode("zzzzzzzzzzzz"));
+            raises(IllegalArgumentException.class, () -> decode("w0000000000"));
         });
         test("capacity is 62 to the power of the length", () -> {
             eq(capacity(1), 62);
