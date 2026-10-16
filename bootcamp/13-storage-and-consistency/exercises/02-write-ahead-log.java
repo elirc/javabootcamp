@@ -67,10 +67,14 @@ class Exercise {
                 () -> recover(List.of("BEGIN t1", "SET t1 a", "COMMIT t1")), "line 2");
             raises(IllegalStateException.class,
                 () -> recover(List.of("BEGIN t1", "PUT t1 a 1", "COMMIT t1")), "line 2");
+            raises(IllegalStateException.class,
+                () -> recover(List.of("BEGIN t1", "SET t1  1", "COMMIT t1")), "line 2");
+            raises(IllegalStateException.class, () -> recover(List.of("BEGIN t1 ", "COMMIT t1")), "line 1");
         });
         test("a record for a transaction that is not open is corruption", () -> {
             raises(IllegalStateException.class, () -> recover(List.of("SET t9 a 1", "BEGIN t1")));
             raises(IllegalStateException.class, () -> recover(List.of("BEGIN t1", "COMMIT t1", "SET t1 a 1")));
+            raises(IllegalStateException.class, () -> recover(List.of("BEGIN t1", "ABORT t1", "COMMIT t1")));
             raises(IllegalStateException.class, () -> recover(List.of("BEGIN t1", "BEGIN t1", "COMMIT t1")));
         });
         System.exit(report());
