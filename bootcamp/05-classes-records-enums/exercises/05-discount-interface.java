@@ -9,8 +9,8 @@
 //  Finish the three records: NoDiscount; PercentOff(percent) takes that
 //  percent off, the discount rounded to the nearest cent, halves up;
 //  AmountOff(cents) takes a fixed amount off but never goes below zero.
-//  Then write best: the discount giving the lowest price (the first one
-//  wins a tie; an empty list means no discount).
+//  Then write best: the discount from the list giving the lowest price
+//  (the first one wins a tie; an empty list → a NoDiscount).
 //
 //      new PercentOff(15).apply(999)    → 849     (149.85 rounds to 150)
 //      new AmountOff(500).apply(300)    → 0
@@ -65,8 +65,10 @@ class Exercise {
             eq(best(offers, 2000), new AmountOff(300));
             eq(best(offers, 5000), new PercentOff(10));
         });
-        test("best keeps the first on a tie", () ->
-            eq(best(List.of(new PercentOff(10), new AmountOff(200)), 2000), new PercentOff(10)));
+        test("best keeps the first on a tie", () -> {
+            eq(best(List.of(new PercentOff(10), new AmountOff(200)), 2000), new PercentOff(10));
+            eq(best(List.of(new AmountOff(0)), 2000), new AmountOff(0));
+        });
         test("best of nothing is no discount", () -> eq(best(List.of(), 2000).apply(2000), 2000));
         System.exit(report());
     }

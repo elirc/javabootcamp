@@ -21,8 +21,10 @@
 //  makes it free, not -2.00.
 //  best is a min-by over apply: a loop keeping the best so far (strict <
 //  keeps the first on a tie) or stream().min(comparingLong(d ->
-//  d.apply(cents))). An empty list returning NoDiscount is the "null
-//  object" pattern — the caller never has to check for null.
+//  d.apply(cents))).orElse(new NoDiscount()). Seed the loop with the
+//  first CANDIDATE, not with NoDiscount: a list holding only AmountOff(0)
+//  must answer AmountOff(0). An empty list returning NoDiscount is the
+//  "null object" pattern — the caller never has to check for null.
 
 import static bootcamp.Check.*;
 
@@ -54,16 +56,16 @@ class Exercise {
     }
 
     static Discount best(List<Discount> discounts, long cents) {
-        Discount best = new NoDiscount();
-        long bestPrice = cents;
+        Discount best = null;
+        long bestPrice = 0;
         for (var d : discounts) {
             long price = d.apply(cents);
-            if (price < bestPrice) {
+            if (best == null || price < bestPrice) {
                 best = d;
                 bestPrice = price;
             }
         }
-        return best;
+        return best == null ? new NoDiscount() : best;
     }
 
     // ─── tests ───────────────────────────────────────────────────────────
@@ -81,8 +83,10 @@ class Exercise {
             eq(best(offers, 2000), new AmountOff(300));
             eq(best(offers, 5000), new PercentOff(10));
         });
-        test("best keeps the first on a tie", () ->
-            eq(best(List.of(new PercentOff(10), new AmountOff(200)), 2000), new PercentOff(10)));
+        test("best keeps the first on a tie", () -> {
+            eq(best(List.of(new PercentOff(10), new AmountOff(200)), 2000), new PercentOff(10));
+            eq(best(List.of(new AmountOff(0)), 2000), new AmountOff(0));
+        });
         test("best of nothing is no discount", () -> eq(best(List.of(), 2000).apply(2000), 2000));
         System.exit(report());
     }
