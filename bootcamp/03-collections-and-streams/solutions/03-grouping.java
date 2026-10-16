@@ -62,7 +62,10 @@ class Exercise {
         test("authors come out alphabetically", () ->
             eq(new ArrayList<>(titlesByAuthor(SHELF).keySet()), List.of("Austen", "Herbert", "Morrison")));
         test("an empty shelf groups to nothing", () -> eq(titlesByAuthor(List.of()), Map.of()));
-        test("classicSplit counts both sides", () -> eq(classicSplit(SHELF, 1950), Map.of(true, 2L, false, 2L)));
+        test("classicSplit counts both sides", () -> {
+            eq(classicSplit(SHELF, 1950), Map.of(true, 2L, false, 2L));
+            eq(classicSplit(SHELF, 1965), Map.of(true, 2L, false, 2L));
+        });
         test("classicSplit always has both keys", () -> eq(classicSplit(List.of(), 1950), Map.of(true, 0L, false, 0L)));
         test("newestByAuthor keeps the newest year", () ->
             eq(newestByAuthor(SHELF), Map.of("Austen", 1817, "Herbert", 1965, "Morrison", 1987)));
