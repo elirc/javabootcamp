@@ -153,7 +153,8 @@ class Exercise {
         });
         test("many virtual nodes spread keys evenly", () -> {
             var r = new Ring(200, Exercise::hash64);
-            for (var n : List.of("A", "B", "C", "D")) r.addNode(n);
+            for (var n : List.of("D", "B", "A", "C")) r.addNode(n);
+            eq(r.nodes(), List.of("A", "B", "C", "D"));
             var load = new TreeMap<String, Integer>();
             for (var k : keys(4000)) load.merge(r.nodeFor(k), 1, Integer::sum);
             eq(load.keySet(), Set.of("A", "B", "C", "D"));
