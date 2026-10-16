@@ -155,11 +155,11 @@ class Exercise {
         test("recovery skips finished transactions and works in log order", () -> {
             var events = new ArrayList<String>();
             var log = new ArrayList<>(List.of("t1 BEGIN", "t1 COMMIT", "t1 DONE",
-                "t2 BEGIN", "t3 BEGIN", "t3 COMMIT"));
+                "t2 BEGIN", "t3 BEGIN", "t4 BEGIN", "t4 COMMIT", "t3 ABORT"));
             var c = new Coordinator(cluster(events, Vote.YES), log);
-            eq(c.recover(), List.of("t2", "t3"));
-            eq(events, List.of("p1 abort t2", "p1 commit t3"));
-            eq(log.subList(6, log.size()), List.of("t2 ABORT", "t2 DONE", "t3 DONE"));
+            eq(c.recover(), List.of("t2", "t3", "t4"));
+            eq(events, List.of("p1 abort t2", "p1 abort t3", "p1 commit t4"));
+            eq(log.subList(8, log.size()), List.of("t2 ABORT", "t2 DONE", "t3 DONE", "t4 DONE"));
             eq(c.recover(), List.of());
         });
         test("a recovery that fails again leaves the work for next time", () -> {
