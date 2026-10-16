@@ -8,9 +8,11 @@
 //  Pub/sub decouples the code that notices something from the code that
 //  reacts to it: the order service publishes "orders.created" and never
 //  learns that billing, email and analytics subscribe. Guava's EventBus,
-//  Spring application events, Redis PUBLISH/PSUBSCRIBE and topic
-//  exchanges in RabbitMQ (where "orders.*" style patterns come from) are
-//  all this shape; Kafka and SNS are the same idea across processes.
+//  Spring application events, Redis PUBLISH/PSUBSCRIBE and RabbitMQ topic
+//  exchanges are all this shape; Kafka and SNS are the same idea across
+//  processes. Wildcard rules differ: in RabbitMQ "orders.*" matches exactly
+//  one more word and "orders.#" any number, so this bus's ".*" behaves
+//  like RabbitMQ's ".#" (minus the zero-word case).
 //  Three details make a bus trustworthy. First, ordering: a List of
 //  subscriptions gives deterministic delivery order. Second, isolation:
 //  one buggy subscriber must not stop the others, so each call gets its
