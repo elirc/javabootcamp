@@ -7,18 +7,19 @@
 //  Walkthrough:
 //  A Supplier<T> is "a computation you can run later", which is what makes
 //  retry possible at all: the caller hands over the WORK, not its result.
-//  The loop keeps the most recent failure in a variable. When an attempt
-//  throws, any previous failure is attached to the new one with
-//  addSuppressed, then the new one becomes "last". After the loop, throw
-//  last. Each attempt's exception is kept, and the one the caller sees is
-//  the most recent — usually the most relevant.
+//  The loop collects every failure in a list. After the loop, the last
+//  one is what the caller sees — usually the most relevant — and every
+//  earlier one is attached to it with addSuppressed, oldest first. The
+//  tempting shortcut, e.addSuppressed(previous) inside the catch, builds
+//  a CHAIN instead (3rd holds 2nd, 2nd holds 1st): nothing is lost, but
+//  getSuppressed() on the thrown exception shows only one of them.
 //  Why not just log and drop the earlier ones? Because the first failure
 //  is often the real cause (a timeout) and later ones are noise (a
 //  connection pool now exhausted). Suppressed exceptions show up in the
 //  stack trace under "Suppressed:", so nothing is lost.
 //  Validate attempts BEFORE the loop: with attempts = 0 the loop never
-//  runs, `last` is null, and `throw null` turns into a confusing
-//  NullPointerException. Fail fast with IllegalArgumentException.
+//  runs, the list is empty, and failures.get(-1) crashes with a confusing
+//  IndexOutOfBoundsException. Fail fast with IllegalArgumentException.
 //  Real retry adds a delay between attempts (with backoff) and only
 //  retries errors that are worth retrying — never a validation error.
 //  Here there is no sleep, so the tests stay fast and deterministic.
@@ -32,15 +33,16 @@ class Exercise {
 
     static <T> T retry(int attempts, Supplier<T> action) {
         if (attempts < 1) throw new IllegalArgumentException("attempts must be at least 1: " + attempts);
-        RuntimeException last = null;
+        var failures = new ArrayList<RuntimeException>();
         for (int i = 0; i < attempts; i++) {
             try {
                 return action.get();
             } catch (RuntimeException e) {
-                if (last != null) e.addSuppressed(last);
-                last = e;
+                failures.add(e);
             }
         }
+        var last = failures.get(failures.size() - 1);
+        for (var earlier : failures.subList(0, failures.size() - 1)) last.addSuppressed(earlier);
         throw last;
     }
 
@@ -74,11 +76,12 @@ class Exercise {
             var e = raises(IllegalStateException.class, () -> retry(3, failsThenReturns(10, 0, calls)));
             eq(e.getMessage(), "fail 3");
         });
-        test("keeps the earlier failures as suppressed", () -> {
+        test("keeps every earlier failure as suppressed, oldest first", () -> {
             var calls = new int[1];
-            var e = raises(IllegalStateException.class, () -> retry(2, failsThenReturns(10, 0, calls)));
-            eq(e.getSuppressed().length, 1);
-            eq(e.getSuppressed()[0].getMessage(), "fail 1");
+            var e = raises(IllegalStateException.class, () -> retry(3, failsThenReturns(10, 0, calls)));
+            var earlier = new ArrayList<String>();
+            for (var s : e.getSuppressed()) earlier.add(s.getMessage());
+            eq(earlier, List.of("fail 1", "fail 2"));
         });
         test("refuses fewer than one attempt", () ->
             raises(IllegalArgumentException.class, () -> retry(0, () -> "never")));

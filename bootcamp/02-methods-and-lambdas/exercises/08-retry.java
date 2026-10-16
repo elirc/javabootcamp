@@ -7,13 +7,14 @@
 //  A bank simulator talks to a flaky ledger service. Write retry: call the
 //  action up to `attempts` times and return the first successful result.
 //  If every attempt throws, rethrow the LAST RuntimeException, with each
-//  earlier failure attached to it as a suppressed exception. attempts
-//  below 1 is a programming error: IllegalArgumentException.
+//  earlier failure attached DIRECTLY to it as a suppressed exception,
+//  oldest first. attempts below 1 is a programming error:
+//  IllegalArgumentException.
 //
 //      retry(3, () -> "ok")                    → "ok" (one call)
 //      retry(3, failsTwiceThenReturns(42))     → 42   (three calls)
-//      retry(2, alwaysFails)                   → throws the 2nd failure,
-//                                                with the 1st suppressed
+//      retry(3, alwaysFails)                   → throws the 3rd failure;
+//                                    its suppressed: [1st failure, 2nd]
 //
 //  hint: Throwable has addSuppressed(...) and getSuppressed().
 
@@ -58,11 +59,12 @@ class Exercise {
             var e = raises(IllegalStateException.class, () -> retry(3, failsThenReturns(10, 0, calls)));
             eq(e.getMessage(), "fail 3");
         });
-        test("keeps the earlier failures as suppressed", () -> {
+        test("keeps every earlier failure as suppressed, oldest first", () -> {
             var calls = new int[1];
-            var e = raises(IllegalStateException.class, () -> retry(2, failsThenReturns(10, 0, calls)));
-            eq(e.getSuppressed().length, 1);
-            eq(e.getSuppressed()[0].getMessage(), "fail 1");
+            var e = raises(IllegalStateException.class, () -> retry(3, failsThenReturns(10, 0, calls)));
+            var earlier = new ArrayList<String>();
+            for (var s : e.getSuppressed()) earlier.add(s.getMessage());
+            eq(earlier, List.of("fail 1", "fail 2"));
         });
         test("refuses fewer than one attempt", () ->
             raises(IllegalArgumentException.class, () -> retry(0, () -> "never")));
