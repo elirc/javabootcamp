@@ -5,11 +5,12 @@
 // ─────────────────────────────────────────────────────────────────────────
 //
 //  An order system prices a cart in a fixed order: first a percentage
-//  discount (rounded to the cent, halves up), then a coupon amount (the
-//  price never drops below zero), then tax on what is left (rounded to the
-//  cent, halves up). Write finalPrice. A discount outside 0..100, a
-//  negative coupon, a negative tax rate or a negative subtotal →
-//  IllegalArgumentException. The result always has two decimals.
+//  discount (the discounted PRICE rounded to the cent, halves up), then a
+//  coupon amount (the price never drops below zero), then tax on what is
+//  left (rounded to the cent, halves up). Write finalPrice. A discount
+//  outside 0..100, a negative coupon, a negative tax rate or a negative
+//  subtotal → IllegalArgumentException. The result always has two
+//  decimals.
 //
 //      finalPrice(100.00, 10, 5.00, 10)   → 93.50    (90.00 → 85.00 → +8.50)
 //      finalPrice(3.00, 0, 5.00, 20)      → 0.00
@@ -36,7 +37,10 @@ class Exercise {
     public static void main(String[] args) {
         test("tax only", () -> eq(price("50", 0, "0", "20"), "60.00"));
         test("discount, then coupon, then tax", () -> eq(price("100.00", 10, "5.00", "10"), "93.50"));
-        test("rounds the discount and the tax to cents", () -> eq(price("19.99", 15, "0", "7"), "18.18"));
+        test("rounds the discounted price and the tax to cents", () -> {
+            eq(price("19.99", 15, "0", "7"), "18.18");
+            eq(price("0.05", 10, "0", "0"), "0.05");
+        });
         test("a big coupon makes it free, not negative", () -> eq(price("3.00", 0, "5.00", "20"), "0.00"));
         test("a full discount is free", () -> eq(price("42.00", 100, "0", "20"), "0.00"));
         test("refuses a discount outside 0..100", () -> {

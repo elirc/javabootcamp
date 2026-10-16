@@ -4,10 +4,11 @@
 //  run: java -cp ../../_lib/out 05-validate-amount.java
 // ─────────────────────────────────────────────────────────────────────────
 //
-//  The bank simulator's deposit prompt validates what the user typed and
-//  lists EVERY problem, in this order. Blank or missing → just
-//  ["required"]. Not plain digits with an optional decimal part (so no
-//  "1e3", no "+5", no "12,50") → just ["not a number"]. Otherwise collect:
+//  The bank simulator's deposit prompt validates what the user typed
+//  (surrounding spaces ignored) and lists EVERY problem, in this order.
+//  Blank or missing → just ["required"]. Anything but an optional minus,
+//  digits and an optional decimal part (so no "1e3", no "+5", no "12,50")
+//  → just ["not a number"]. Otherwise collect:
 //  "must be positive" (zero or less), "at most 2 decimals" (trailing zeros
 //  don't count: 1.500 is fine), "at most 10000.00" (more than that).
 //
