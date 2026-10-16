@@ -7,17 +7,18 @@
 //  A to-do manager reads commands typed at a prompt. Write parseCommand:
 //  only the first word counts, surrounding spaces and case are ignored,
 //  and each command has aliases. Anything else — including null or blank
-//  input — is UNKNOWN. Then write describe, one help line per command.
+//  input — is UNKNOWN. Then write describe, which returns the help line
+//  shown here for each command (the enum Command is already defined):
 //
-//      add | a | new          → ADD        list | ls       → LIST
-//      done | finish | x      → DONE       rm | remove | delete → REMOVE
-//      quit | exit | q        → QUIT
+//      add | a | new          → ADD       "add a task"
+//      list | ls              → LIST      "list the tasks"
+//      done | finish | x      → DONE      "mark a task done"
+//      rm | remove | delete   → REMOVE    "remove a task"
+//      quit | exit | q        → QUIT      "leave the program"
+//      anything else          → UNKNOWN   "unknown command"
 //
 //      parseCommand("  LS ")           → LIST
 //      parseCommand("add buy milk")    → ADD
-//      describe(Command.DONE)          → "mark a task done"
-//
-//  The enum Command is defined above the code you edit.
 //
 //  hint: a switch EXPRESSION can list several labels per arm.
 
