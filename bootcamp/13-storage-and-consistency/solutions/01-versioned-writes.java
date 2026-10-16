@@ -126,6 +126,7 @@ class Exercise {
         test("deleting with no value is an IllegalStateException", () -> {
             var store = new VersionedStore();
             raises(IllegalStateException.class, () -> store.delete("cart", 0));
+            raises(IllegalStateException.class, () -> store.delete("cart", 7));
             store.put("cart", "tea", 0);
             store.delete("cart", 1);
             raises(IllegalStateException.class, () -> store.delete("cart", 2));
