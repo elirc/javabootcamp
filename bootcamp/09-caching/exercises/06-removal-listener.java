@@ -16,7 +16,6 @@
 //      (EXPIRED, least recently used first); then, if still too many,
 //      least recently used live entries leave (SIZE); a put that fits
 //      leaves dead entries where they are
-
 //  get hits and puts count as uses. A listener that throws a
 //  RuntimeException must not break the cache: count it (listenerErrors).
 //
@@ -178,7 +177,6 @@ class Exercise {
             eq(c.get("a"), Optional.empty());
             eq(log.events, List.of("a=1 EXPIRED"));
         });
-
         test("a throwing listener does not break the cache", () -> {
             var c = new ListeningCache<String, Integer>(1, 100, new FakeClock(),
                 (k, v, cause) -> { throw new IllegalStateException("listener bug"); });

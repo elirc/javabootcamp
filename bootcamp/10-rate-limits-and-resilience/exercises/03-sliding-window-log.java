@@ -125,7 +125,6 @@ class Exercise {
             clock.now = 1_300;
             eq(rl.retryAfter("alice"), 0);
         });
-
         test("retryAfter is 0 for a client with room or never seen", () -> {
             var clock = new FakeClock();
             var rl = new SlidingWindowLog(2, 1_000, clock);

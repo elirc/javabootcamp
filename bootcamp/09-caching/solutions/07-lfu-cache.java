@@ -149,7 +149,6 @@ class Exercise {
             eq(c.frequency("c"), 1);
         });
         test("put on an existing key replaces it and counts as a use", () -> {
-
             var c = new LfuCache<String, Integer>(2);
             c.put("a", 1);
             c.put("b", 2);

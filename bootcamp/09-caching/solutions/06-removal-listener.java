@@ -213,7 +213,6 @@ class Exercise {
             eq(c.get("a"), Optional.empty());
             eq(log.events, List.of("a=1 EXPIRED"));
         });
-
         test("a throwing listener does not break the cache", () -> {
             var c = new ListeningCache<String, Integer>(1, 100, new FakeClock(),
                 (k, v, cause) -> { throw new IllegalStateException("listener bug"); });

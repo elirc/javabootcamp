@@ -86,7 +86,6 @@ class Exercise {
             c.put("a", 9);
             eq(c.keysOldestFirst(), List.of("b", "a"));
             c.put("c", 3);
-
             eq(c.keysOldestFirst(), List.of("a", "c"));
             eq(c.get("a"), Optional.of(9));
         });

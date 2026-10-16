@@ -169,7 +169,6 @@ class Exercise {
             db.finish("k");
             eq(other.isDone(), true);
             eq(other.join(), "row k");
-
         });
         System.exit(report());
     }

@@ -111,7 +111,6 @@ class Exercise {
             eq(b.finish("t2"), Optional.empty());
             eq(b.submit("t1"), Admission.RUNNING);
             eq(b.running(), List.of("t3", "t1"));
-
         });
         test("cancelling a queued task promotes nobody", () -> {
             var b = new Bulkhead(1, 2);
