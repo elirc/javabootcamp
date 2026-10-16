@@ -129,10 +129,10 @@ class Exercise {
             var now = new long[] {0};
             var s = new Scheduler(() -> now[0]);
             s.schedule("late", 1, 40);
-            s.schedule("first", 1, 10);
-            s.schedule("second", 1, 10);
+            s.schedule("zed", 1, 10);
+            s.schedule("amy", 1, 10);
             now[0] = 100;
-            eq(s.runDue(), List.of("first", "second", "late"));
+            eq(s.runDue(), List.of("zed", "amy", "late"));
         });
         test("cancel removes a pending task", () -> {
             var now = new long[] {0};
@@ -168,6 +168,9 @@ class Exercise {
             eq(s.nextRunAt(), Optional.of(500L));
             now[0] = 500;
             eq(s.runDue(), List.of("tick"));
+            now[0] = 700;
+            eq(s.runDue(), List.of("tick"));
+            eq(s.nextRunAt(), Optional.of(800L));
         });
         test("a mix of one-off and recurring tasks", () -> {
             var now = new long[] {0};
@@ -179,6 +182,15 @@ class Exercise {
             eq(s.nextRunAt(), Optional.of(200L));
             s.cancel("tick");
             eq(s.nextRunAt(), Optional.empty());
+            now[0] = 0;
+            var t = new Scheduler(() -> now[0]);
+            t.every("tick", 0, 100);
+            now[0] = 50;
+            t.schedule("b", 0, 150);
+            now[0] = 100;
+            eq(t.runDue(), List.of("tick"));
+            now[0] = 200;
+            eq(t.runDue(), List.of("tick", "b"));
         });
         test("refuses negative delays, empty periods and duplicate names", () -> {
             var s = new Scheduler(() -> 0);
