@@ -16,9 +16,11 @@ RocksDB, Cassandra, DynamoDB, etcd and Kafka.
 
 ### 1 · Durability is a log you can replay
 
-Disks can only promise that an append which returned has landed. So a
-database writes every change to a **write-ahead log** first and updates
-its real data structures later. After a crash it replays the log. A
+A disk only promises that data has landed once a flush (`fsync`) of it
+has returned, and flushing one sequential file is far cheaper than
+flushing pages scattered across the data files. So a database appends
+every change to a **write-ahead log**, flushes it, and updates its real
+data structures later. After a crash it replays the log. A
 transaction becomes real at exactly one moment: when its COMMIT record is
 durable.
 
@@ -53,8 +55,8 @@ A delete cannot remove anything from an immutable run, so it writes a
 | --- | --- | --- |
 | write | update a page in place | append to memtable, flush whole runs |
 | read | one tree walk | memtable + several runs (bloom filters help) |
-| write amplification | moderate | high during compaction |
-| good for | read-heavy, range queries, transactions | write-heavy, time series, logs |
+| where writes cost extra | a whole page rewritten for a small change | the same data rewritten by each compaction |
+| good for | read-heavy, predictable read latency | write-heavy, time series, logs |
 
 ### 3 · Concurrency without waiting: versions
 
