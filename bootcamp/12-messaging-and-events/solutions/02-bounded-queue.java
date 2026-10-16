@@ -159,6 +159,9 @@ class Exercise {
             q.offer("d");
             eq(q.highWater(), 2);
             eq(q.size(), 1);
+            var roomy = new BoundedQueue(5, Policy.REJECT);
+            for (var m : List.of("a", "b", "c")) roomy.offer(m);
+            eq(roomy.highWater(), 3);
         });
         test("refuses a capacity below one", () -> {
             raises(IllegalArgumentException.class, () -> new BoundedQueue(0, Policy.REJECT));
