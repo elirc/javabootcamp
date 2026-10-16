@@ -86,6 +86,7 @@ class Exercise {
             var b = sf.get("k");
             eq(a.isDone(), false);
             db.finish("k");
+            eq(a.isDone() && b.isDone(), true);
             eq(a.join(), "row k");
             eq(b.join(), "row k");
         });
@@ -116,6 +117,7 @@ class Exercise {
             var a = sf.get("k");
             var b = sf.get("k");
             db.fail("k");
+            eq(a.isCompletedExceptionally() && b.isCompletedExceptionally(), true);
             var ex = raises(CompletionException.class, a::join);
             eq(ex.getCause().getMessage(), "db timeout");
             raises(CompletionException.class, b::join);
@@ -135,11 +137,12 @@ class Exercise {
         test("one caller cancelling does not cancel the flight", () -> {
             var db = new Backend();
             var sf = new SingleFlight<String, String>(db);
-            var impatient = sf.get("k");
             var patient = sf.get("k");
+            var impatient = sf.get("k");
             impatient.cancel(true);
             eq(sf.inFlight(), 1);
             db.finish("k");
+            eq(patient.isDone(), true);
             eq(patient.join(), "row k");
         });
         test("one caller completing its future does not decide for others", () -> {
@@ -150,7 +153,9 @@ class Exercise {
             meddler.complete("forged");
             eq(sf.inFlight(), 1);
             db.finish("k");
+            eq(other.isDone(), true);
             eq(other.join(), "row k");
+
         });
         System.exit(report());
     }
