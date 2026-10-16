@@ -106,11 +106,12 @@ class Exercise {
         });
         test("finishing with nobody waiting frees a permit", () -> {
             var b = new Bulkhead(2, 1);
-            b.submit("t1");
             b.submit("t2");
-            eq(b.finish("t1"), Optional.empty());
-            eq(b.submit("t3"), Admission.RUNNING);
-            eq(b.running(), List.of("t2", "t3"));
+            b.submit("t3");
+            eq(b.finish("t2"), Optional.empty());
+            eq(b.submit("t1"), Admission.RUNNING);
+            eq(b.running(), List.of("t3", "t1"));
+
         });
         test("cancelling a queued task promotes nobody", () -> {
             var b = new Bulkhead(1, 2);
