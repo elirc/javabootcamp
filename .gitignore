@@ -1,0 +1,3 @@
+bootcamp/_lib/out/
+*.class
+.verify-out/
