@@ -3,7 +3,9 @@
 A personal coding bootcamp for levelling up Java fundamentals, built around
 what the beginner Java CLI projects actually need: a to-do manager, a
 library tracker, a quiz engine, a bank simulator, an expense tracker, an
-order system. It runs **fully offline** — every exercise is a single
+order system. A fifth block then takes the same habits up a level, to
+system design: caches, rate limits, partitioning, messaging and storage,
+each built as a small in-process model you can test. It runs **fully offline** — every exercise is a single
 self-contained file graded by its own tests, runnable with nothing but a
 JDK 17.
 
@@ -40,7 +42,7 @@ single source file directly (Java 11+). (`☐ todo` = not written yet ·
 
 ```
 FLIGHTPLAN.md        ← the plan. Read it first.
-bootcamp/            ← the main event: 8 modules, 64 exercises
+bootcamp/            ← the main event: 13 modules, 104 exercises
   01-language-core/           primitives vs references, int division and
                               overflow, boxed equality, switch expressions,
                               string equality, arrays, char arithmetic
@@ -65,10 +67,28 @@ bootcamp/            ← the main event: 8 modules, 64 exercises
   08-domain-rules/            Optional, state machines, invariants,
                               all-or-nothing updates, scoring, lifecycles,
                               idempotent payments
+  09-caching/                 LRU and LFU eviction, TTLs on an injected
+                              clock, cache-aside vs write-through, loaders
+                              with hit/miss stats, stampede protection,
+                              negative caching
+  10-rate-limits-and-resilience/ token buckets, fixed and sliding windows,
+                              retries with backoff and jitter, circuit
+                              breakers, bulkheads, deadlines, idempotency
+                              keys with replay
+  11-partitioning-and-ids/    hash sharding, consistent hashing, rendezvous
+                              hashing, snowflake ids, base62 codes, range
+                              partitions, bloom filters, quorums
+  12-messaging-and-events/    pub/sub, at-least-once with dedupe,
+                              backpressure, outbox relay, dead letters,
+                              event sourcing, sagas, delayed jobs
+  13-storage-and-consistency/ optimistic locking, write-ahead log recovery,
+                              LSM trees, MVCC snapshots, CRDTs, vector
+                              clocks, leases with fencing, two-phase commit
   _lib/check/bootcamp/        the test harness (Check, BqMain; JDK only)
   _lib/FORMAT.md              the authoring contract
   Verify.java                 maintainer check: every file, both ways
-astraupskill/        ← how to study with this repo, and the big ideas
+astraupskill/        ← how to study with this repo, the big ideas, and
+                       the system-design guide (03-SYSTEM-DESIGN.md)
 ```
 
 Each module: `README.md` (the lesson — read first), `exercises/` (yours),
