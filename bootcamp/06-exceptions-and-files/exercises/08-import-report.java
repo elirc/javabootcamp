@@ -6,11 +6,14 @@
 //
 //  An expense tracker imports lines like "food,12.50". One bad line must
 //  not lose the other 9,999, so importLines never throws for bad DATA: it
-//  returns the good expenses and a list of errors, one per bad line, as
+//  returns the good expenses (amount in cents) and one error per bad line,
 //  "line N: reason". Blank lines and lines starting with "#" are skipped
-//  (they still count for numbering). Rules: exactly two comma-separated
-//  fields; a non-blank category (trimmed); an amount of digits with at most
-//  two decimals, greater than zero, stored in cents.
+//  (they still count for numbering). Both fields are trimmed. The first
+//  broken rule, in this order, gives the reason:
+//    not exactly two comma-separated fields  "expected category,amount"
+//    a blank category                        "blank category"
+//    not digits with at most two decimals    "bad amount '<amount>'"
+//    a zero amount                   "amount must be greater than zero"
 //
 //      importLines(["food,12.50", "rent,abc", "# note", ",3"])
 //          → imported [Expense[category=food, cents=1250]]

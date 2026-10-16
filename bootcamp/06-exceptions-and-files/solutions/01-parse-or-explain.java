@@ -20,7 +20,7 @@
 //  range message, not the number message.
 //  All of these are unchecked (RuntimeException subclasses): a bad
 //  quantity is a caller or input error the caller may validate for, not a
-//  recoverable environmental failure like a missing file. Module 06 uses
+//  recoverable environmental failure like a missing file. Exercise 02 uses
 //  checked exceptions for the latter.
 
 import static bootcamp.Check.*;
