@@ -161,8 +161,8 @@ class Exercise {
             var a = db.begin();
             var b = db.begin();
             db.write(a, "x", "a");
-            db.write(b, "x", "b");
             db.write(b, "y", "b");
+            db.write(b, "x", "b");
             db.commit(a);
             raises(ConflictException.class, () -> db.commit(b), "x");
             eq(db.read(db.begin(), "x"), "a");
@@ -205,6 +205,14 @@ class Exercise {
             eq(db.gc(2), 0);
             eq(db.gc(9), 2);
             eq(db.read(db.begin(), "x"), "4");
+            var gaps = seeded("x", "1");
+            for (var key : List.of("y", "x")) {
+                var tx = gaps.begin();
+                gaps.write(tx, key, "later");
+                gaps.commit(tx);
+            }
+            eq(gaps.gc(2), 0);
+            eq(gaps.read(new Tx(2), "x"), "1");
         });
         System.exit(report());
     }
