@@ -9,7 +9,8 @@
 //  images) need to know when an entry leaves so they can close it, and
 //  operators want to know WHY: lots of SIZE evictions means the cache is
 //  too small, lots of EXPIRED means the TTL is short, REPLACED means hot
-//  keys are being rewritten. Caffeine's RemovalCause is this enum.
+//  keys are being rewritten. Caffeine's RemovalCause has these four,
+//  plus COLLECTED for entries lost to weak or soft references.
 //  Every exit path goes through one notify method, so no path can forget
 //  to report. The interesting rules are in put:
 //  1. An old entry for the same key is REPLACED only if it was still
