@@ -159,11 +159,14 @@ acceptable, and write that number down.
 | timeout / deadline | waiting forever | budget per call, propagated downstream |
 | idempotency key | a retried request doing the work twice | key lifetime, what is stored with it |
 
-These compose in a fixed order on an outbound call: **deadline → bulkhead
-→ circuit breaker → retry (with backoff) → the call**, and on the server
-side: **rate limit → idempotency check → work**. Retries without
-idempotency turn one payment into two; retries without backoff and
-jitter turn a blip into a self-inflicted outage.
+These compose in layers. One common arrangement on an outbound call is
+**deadline → retry (with backoff) → circuit breaker → bulkhead → the
+call**, so every attempt passes the breaker and, once it opens, each
+retry fails fast instead of reaching the dependency (libraries differ;
+choose the order on purpose and say why). On the server side: **rate
+limit → idempotency check → work**. Retries without idempotency turn
+one payment into two; retries without backoff and jitter turn a blip
+into a self-inflicted outage.
 
 ### Partitioning and ids (module 11)
 
@@ -430,7 +433,10 @@ each node: write-ahead log ──► memtable ──► sorted runs (LSM) + bloo
 
 **Blocks.** Consistent hashing with virtual nodes to place keys and
 rebalance cheaply (11). Replication with quorums, `R + W > N` for
-read-your-latest-write, or smaller R and W for lower latency (11). Each
+read-your-latest-write, or smaller R and W for lower latency (11).
+"Always writable" needs a sloppy quorum: when the key's home replicas
+are unreachable, other nodes accept the write and hand it back later
+(hinted handoff), which is exactly when concurrent versions appear. Each
 node's storage engine is a write-ahead log in front of an LSM tree (13);
 bloom filters let a read skip runs that cannot hold the key (11).
 Concurrent writes during a partition are detected with vector clocks and
