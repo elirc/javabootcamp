@@ -14,7 +14,9 @@
 //                                     EXPIRED if dead
 //    put that overflows capacity    → first EVERY dead entry leaves
 //      (EXPIRED, least recently used first); then, if still too many,
-//      least recently used live entries leave (SIZE)
+//      least recently used live entries leave (SIZE); a put that fits
+//      leaves dead entries where they are
+
 //  get hits and puts count as uses. A listener that throws a
 //  RuntimeException must not break the cache: count it (listenerErrors).
 //
@@ -164,6 +166,19 @@ class Exercise {
             eq(log.events, List.of("a=1 EXPIRED"));
             eq(c.get("a"), Optional.of(2));
         });
+        test("a put that fits leaves dead entries alone", () -> {
+            var log = new Log();
+            var clock = new FakeClock();
+            var c = new ListeningCache<String, Integer>(3, 100, clock, log);
+            c.put("a", 1);
+            clock.now = 100;
+            c.put("b", 2);
+            c.put("c", 3);
+            eq(log.events, List.of());
+            eq(c.get("a"), Optional.empty());
+            eq(log.events, List.of("a=1 EXPIRED"));
+        });
+
         test("a throwing listener does not break the cache", () -> {
             var c = new ListeningCache<String, Integer>(1, 100, new FakeClock(),
                 (k, v, cause) -> { throw new IllegalStateException("listener bug"); });

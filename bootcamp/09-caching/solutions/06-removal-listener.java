@@ -200,6 +200,19 @@ class Exercise {
             eq(log.events, List.of("a=1 EXPIRED"));
             eq(c.get("a"), Optional.of(2));
         });
+        test("a put that fits leaves dead entries alone", () -> {
+            var log = new Log();
+            var clock = new FakeClock();
+            var c = new ListeningCache<String, Integer>(3, 100, clock, log);
+            c.put("a", 1);
+            clock.now = 100;
+            c.put("b", 2);
+            c.put("c", 3);
+            eq(log.events, List.of());
+            eq(c.get("a"), Optional.empty());
+            eq(log.events, List.of("a=1 EXPIRED"));
+        });
+
         test("a throwing listener does not break the cache", () -> {
             var c = new ListeningCache<String, Integer>(1, 100, new FakeClock(),
                 (k, v, cause) -> { throw new IllegalStateException("listener bug"); });
