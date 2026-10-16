@@ -108,10 +108,14 @@ class Exercise {
             eq(s.orders(), Map.of("o1", 100L));
             eq(s.pending(), List.of("OrderPlaced o1 100"));
         });
-        test("relay publishes pending events in order and marks them", () -> {
+        test("relay publishes pending events in order, then marks them", () -> {
             var s = withOrders("o1", "o2");
             var sent = new ArrayList<String>();
-            eq(s.relay(sent::add, 10), 2);
+            Consumer<String> broker = e -> {
+                ok(s.pending().contains(e), e + " was marked published before it was sent");
+                sent.add(e);
+            };
+            eq(s.relay(broker, 10), 2);
             eq(sent, List.of("OrderPlaced o1 100", "OrderPlaced o2 100"));
             eq(s.pending(), List.of());
         });
