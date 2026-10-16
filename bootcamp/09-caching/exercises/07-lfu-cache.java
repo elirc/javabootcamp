@@ -105,7 +105,19 @@ class Exercise {
             eq(c.frequency("a"), 3);
             eq(c.frequency("c"), 1);
         });
+        test("emptying a bucket above the minimum leaves the minimum alone", () -> {
+            var c = new LfuCache<String, Integer>(2);
+            c.put("a", 1);
+            c.get("a");
+            c.put("b", 2);
+            c.get("a");
+            c.put("c", 3);
+            eq(c.frequency("b"), 0);
+            eq(c.frequency("a"), 3);
+            eq(c.frequency("c"), 1);
+        });
         test("put on an existing key replaces it and counts as a use", () -> {
+
             var c = new LfuCache<String, Integer>(2);
             c.put("a", 1);
             c.put("b", 2);
