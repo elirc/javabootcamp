@@ -88,5 +88,6 @@ Do the warm-ups and core in order. Stretch if time allows.
 
 ---
 
-**Done with the modules?** Go back to the project you started with and
-apply one rule from each module to it. **Next:** `astraupskill/01-START-HERE.md`
+**Done with the fundamentals?** Go back to the project you started with and
+apply one rule from each module to it. Then start the System Design
+section (modules 09–13). **Next:** `bootcamp/09-caching`

@@ -1,9 +1,10 @@
 # The ideas that keep coming back
 
-Sixty-four exercises look like sixty-four topics. They are really seven
-ideas, each met several times in different clothes. Recognising the idea
-is what lets you avoid the bug in code that looks nothing like the
-exercise.
+The sixty-four fundamentals exercises (modules 01–08) look like
+sixty-four topics. They are really seven ideas, each met several times in
+different clothes. Recognising the idea is what lets you avoid the bug in
+code that looks nothing like the exercise. (The System Design section,
+modules 09–13, has its own guide: `03-SYSTEM-DESIGN.md`.)
 
 ## 1 · Identity is not equality
 

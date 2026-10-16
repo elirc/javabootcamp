@@ -63,6 +63,6 @@ Read a module's README first; it names the traps the exercises are built
 around. Do the warm-ups and core exercises in order and leave a stretch
 for a second pass if you must. When you get stuck, use the hint, then the
 README, then the walkthrough — in that order, and only after a real
-attempt. Finally, take each lesson home: the point is not 64 green files,
+attempt. Finally, take each lesson home: the point is not 104 green files,
 it is a to-do manager, a bank simulator and an order system of your own
 that no longer have these bugs.
