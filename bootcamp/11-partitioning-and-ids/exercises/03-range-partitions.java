@@ -13,7 +13,8 @@
 //  ascending, the partitions a scan of [from, to) touches (to excluded;
 //  from == to is an empty scan → []; from > to → IllegalArgumentException).
 //  split(at) adds a split point to relieve a hot partition (an existing
-//  point → IllegalArgumentException); splitPoints() is a read-only view.
+//  point → IllegalArgumentException); splitPoints() is a read-only view
+//  and count() is the number of partitions (split points + 1).
 //  Static evenSplits(sortedSample, n) picks n - 1 split points from a
 //  sorted key sample: the elements at index i * size / n for i = 1..n-1
 //  (n < 1 → IllegalArgumentException).
