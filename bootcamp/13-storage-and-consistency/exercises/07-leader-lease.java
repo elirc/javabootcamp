@@ -132,6 +132,11 @@ class Exercise {
             lock.release("A", 1);
             lock.release("A", t2);
             eq(lock.leader(), Optional.of("B"));
+            now[0] = 200;
+            eq(lock.tryAcquire("A"), OptionalLong.of(3));
+            lock.release("A", 1);
+            eq(lock.renew("A", 1), false);
+            eq(lock.leader(), Optional.of("A"));
         });
         test("release lets another node in at once with a new token", () -> {
             long[] now = {0};
