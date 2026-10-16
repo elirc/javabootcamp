@@ -35,7 +35,11 @@ only helps when the server refuses quickly instead of hanging.
 | token bucket | tokens + last refill time | up to capacity, then the steady rate | yes | AWS API Gateway, Guava `RateLimiter`, Stripe |
 | fixed window | window index + count | 2 x limit across a boundary | no | Redis `INCR` + `EXPIRE`, GitHub's hourly quota |
 | sliding log | one timestamp per allowed request | none | yes | Redis sorted sets, small strict limits |
-| sliding counter | two counters, weighted | small | approximately | Cloudflare, nginx-style limits |
+| sliding counter | two counters, weighted | small | approximately | Cloudflare's rate limiting |
+
+(nginx's `limit_req` is the fifth classic, a *leaky bucket*: requests
+drain at a fixed rate and a burst waits in a short queue instead of
+going straight through.)
 
 The token bucket is the usual default because its two numbers say what
 people actually mean: *"10 per second on average, bursts of 30 are
@@ -59,8 +63,11 @@ attempt 1 ✗ ── sleep ~100 ── attempt 2 ✗ ── sleep ~200 ── at
 - **Capped** so the 20th retry does not sleep for a week.
 - **Jittered** so 10 000 clients that failed together don't retry
   together. Without jitter the outage comes back in synchronised waves.
-- **Selective**: retry timeouts and 503s, never a 400. A retry budget
-  (at most 3 attempts) bounds the extra load to a known multiple.
+- **Selective**: retry timeouts and 503s, never a 400. A cap on
+  attempts (say 3) bounds the extra load per request to a known
+  multiple; a fleet-wide *retry budget* (retries capped at a fraction
+  of live traffic, as in Finagle and Envoy) stops them amplifying an
+  outage.
 
 ### 4 · Circuit breaker: stop calling what is broken
 
@@ -93,6 +100,9 @@ A retried `POST /charges` must not charge twice. The client sends an
 it for repeats. The key is claimed before the handler runs (so a
 concurrent duplicate is refused), and only final answers (2xx, 4xx) are
 stored; a 5xx or a crash releases the key so a retry can run for real.
+That last rule is a policy, not a law: it is safe only when a 5xx means
+nothing took effect (the handler rolled back). Stripe, which cannot be
+sure, stores and replays a 500 too once the handler has started.
 
 ## The details that bite
 

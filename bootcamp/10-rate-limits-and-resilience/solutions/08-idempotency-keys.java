@@ -9,12 +9,14 @@
 //  effect. For "charge the card" that needs help from the server: the
 //  client sends an Idempotency-Key header, and the server stores the
 //  RESPONSE under that key. A retry gets the stored response replayed,
-//  byte for byte, without running the handler again. This is Stripe's
-//  design; module 08's payments remembered ids, this remembers answers.
+//  byte for byte, without running the handler again. Stripe made this
+//  design famous; module 08's payments remembered ids, this remembers
+//  answers.
 //  The store keys on more than the key:
 //  - Fingerprint. The same key with a different body is a client bug
 //    (a reused UUID). Replaying the old answer would silently confirm a
-//    request that never ran, so it is refused (HTTP 422 in Stripe).
+//    request that never ran, so it is refused (422 in the IETF
+//    Idempotency-Key draft).
 //  - In progress. The key is claimed BEFORE the handler runs, so a
 //    second request with that key while the first is still running gets
 //    a refusal (409) instead of a second execution. In a real server
@@ -23,6 +25,8 @@
 //  - Only final answers are stored. 2xx and 4xx are what the request
 //    deserved and are replayed; a 5xx or a thrown exception means "we
 //    failed, try again", so the claim is released and nothing is stored.
+//    That assumes a 5xx left no effect behind (the handler rolled back);
+//    Stripe cannot assume it, so it replays a 500 once the handler began.
 //    The try/finally-style release is the trap: forget it on the error
 //    path and the key is stuck "in progress" forever.
 //  Stored answers expire after the TTL (Stripe keeps them 24 hours).

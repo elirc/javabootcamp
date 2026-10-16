@@ -25,7 +25,7 @@
 //    failure would reopen it.
 //  - The original exception is rethrown; the breaker observes, it does
 //    not translate. Only rejections are a CircuitOpenException.
-//  Resilience4j and Polly add sliding-window failure RATES and several
+//  Resilience4j adds sliding-window failure RATES and several
 //  trial calls, but the state machine is exactly this one.
 
 import static bootcamp.Check.*;
