@@ -8,7 +8,8 @@
 //  Write score: a right answer earns the question's points; a wrong or
 //  missing answer earns 0 and its id is listed in `missed`, in question
 //  order; `possible` is the sum of all points. An answer for a question
-//  that is not in the quiz → IllegalArgumentException. Then write percent:
+//  that is not in the quiz → IllegalArgumentException whose message names
+//  that id. Then write percent:
 //  earned out of possible, rounded to a whole percent (halves up); 0 when
 //  nothing was possible. Question and Score are above the tests.
 //

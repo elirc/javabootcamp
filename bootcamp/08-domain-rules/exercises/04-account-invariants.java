@@ -6,11 +6,11 @@
 //
 //  The bank simulator's Account has rules that must hold after EVERY call:
 //  the balance is never negative; a frozen account accepts deposits but
-//  refuses withdrawals; a closed account refuses everything (deposit,
-//  withdraw, freeze, close again); only an account with a zero balance can
-//  be closed. Every refusal is an IllegalStateException and changes
-//  nothing. Non-positive amounts → IllegalArgumentException. Finish the
-//  nested class Account.
+//  refuses withdrawals until unfreeze(); a closed account refuses
+//  everything (deposit, withdraw, freeze, close again); only an account
+//  with a zero balance can be closed. Every refusal is an
+//  IllegalStateException and changes nothing. Non-positive amounts →
+//  IllegalArgumentException. Finish the nested class Account.
 //
 //      deposit(100); freeze(); withdraw(10)    → IllegalStateException
 //      close() with a balance of 100           → IllegalStateException
