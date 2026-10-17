@@ -105,6 +105,8 @@ class Exercise {
             eq(sms("+4712345678"), new SmsNotifier("+4712345678"));
             raises(IllegalArgumentException.class, () -> sms("4712345678"));
             raises(IllegalArgumentException.class, () -> sms("+123456"));
+            eq(sms("+123456789012345"), new SmsNotifier("+123456789012345"));
+            raises(IllegalArgumentException.class, () -> sms("+1234567890123456"));
             eq(slack("#ops-alerts"), new SlackNotifier("#ops-alerts"));
             raises(IllegalArgumentException.class, () -> slack("#Ops"));
             raises(IllegalArgumentException.class, () -> slack("#"));
