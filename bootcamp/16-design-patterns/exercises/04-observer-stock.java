@@ -142,8 +142,8 @@ class Exercise {
             var inv = new Inventory();
             var alerts = new ArrayList<String>();
             inv.subscribe(lowStockAlert(5, alerts));
-            for (int qty : new int[] {10, 4, 2, 8, 3, 5, 6}) inv.set("bolt", qty);
-            eq(alerts, List.of("LOW bolt=4", "LOW bolt=3"));
+            for (int qty : new int[] {10, 4, 2, 8, 3, 5, 6, 5, 4}) inv.set("bolt", qty);
+            eq(alerts, List.of("LOW bolt=4", "LOW bolt=3", "LOW bolt=4"));
         });
         System.exit(report());
     }

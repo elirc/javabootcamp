@@ -10,10 +10,10 @@
 //  StockListener interface. The pattern is simple; its failure modes are
 //  in the notification loop.
 //  1. Mutation during notification. A listener that cancels itself while
-//  the loop walks the live list causes a ConcurrentModificationException
-//  (for-each) or silently skips the next listener (index loop). Iterating
-//  a snapshot (List.copyOf) fixes both: the round goes to exactly the
-//  subscribers present when it started.
+//  the loop walks the live list makes an index loop skip the next one,
+//  and a for-each throw ConcurrentModificationException or quietly stop
+//  early (it does here). A snapshot (List.copyOf) fixes both: the round
+//  goes to exactly the subscribers present when it started.
 //  2. One bad listener. If a listener's exception escapes, the listeners
 //  after it never hear the change and the caller's set() fails for a
 //  reason it cannot handle. Catch per listener, record, and continue.
@@ -157,8 +157,8 @@ class Exercise {
             var inv = new Inventory();
             var alerts = new ArrayList<String>();
             inv.subscribe(lowStockAlert(5, alerts));
-            for (int qty : new int[] {10, 4, 2, 8, 3, 5, 6}) inv.set("bolt", qty);
-            eq(alerts, List.of("LOW bolt=4", "LOW bolt=3"));
+            for (int qty : new int[] {10, 4, 2, 8, 3, 5, 6, 5, 4}) inv.set("bolt", qty);
+            eq(alerts, List.of("LOW bolt=4", "LOW bolt=3", "LOW bolt=4"));
         });
         System.exit(report());
     }
