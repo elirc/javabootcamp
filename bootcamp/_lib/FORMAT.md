@@ -173,6 +173,45 @@ Both files must compile with `javac --release 17 -encoding UTF-8`:
 - exercise file → every test reports `todo`, 0 passed, 0 failed
 - solution file → every test passes
 
+## Debug hunts and scaffolded drills
+
+Two teaching methods change what a STARTER looks like. Everything else
+in this contract (header, tests block, 4–9 tests, Walkthrough, ASCII,
+byte-identical tests) holds unchanged, and **a solution is always all
+green**, with no TODO stub and no `/* ___ */` hole left.
+
+**Debug hunts** — any module whose directory name contains `debug`
+(`19-debugging`, `21-design-debugging`):
+
+- The starter is COMPLETE, realistic code that carries 1–3 bugs. It has
+  no TODO stub.
+- The prompt states the intended behaviour and a symptom report ("users
+  say…"). It never says where the bug is.
+- Verify: the starter compiles and **at least one test FAILS** (✘).
+  Passing tests are expected (the code mostly works); a todo is allowed.
+- The solution is the fixed code. Its Walkthrough says how to find each
+  bug: reproduce, narrow, fix, and the test that pins it.
+- A starter must never hang or crash the run: a bug that would loop
+  forever is bounded by the tests (a fake sleeper that gives up), so the
+  starter still ends in a test verdict.
+
+**Scaffolded drills** — any module whose directory name contains
+`scaffold` (`20-scaffolded`):
+
+- **Parsons**: the prompt lists the solution's lines SCRAMBLED; the
+  starter method throws the usual TODO stub; the learner arranges the
+  lines. Lines marked `(?)` are candidates that may be extra (distractors
+  come in marked pairs). A Parsons prompt may run past 18 lines (up to
+  ~30) because it carries the lines.
+- **Fill-in**: the starter is a complete program with holes. Each hole
+  is a `/* ___ */` marker in a slot that compiles, usually
+  `/* ___ */ hole()`, where `hole()` is a starter helper that throws
+  `UnsupportedOperationException("TODO")`, so an untouched hole reports
+  todo. The solution fills every hole and drops the helper.
+- Verify: the starter has a TODO stub or a `/* ___ */` hole, **0 tests
+  pass**, and every test is todo or failed (as for an ordinary starter,
+  each test must reach a stub or a hole).
+
 ## Grading = learner head + canonical tests + learner tail
 
 A file splits into three parts: the **head** (everything above the
@@ -253,6 +292,7 @@ Verify compiles the harness, then every file with
 `javac --release 17 -encoding UTF-8`, runs each through `BqMain` with a
 fresh nonce, and enforces everything above: header grammar, the
 exercise/solution pairing, byte-identical tests blocks, 4–9 tests, ASCII
-code, every solution all green, every exercise todo-only. It ends
+code, every solution all green, every exercise todo-only (debug hunts:
+compiles and fails at least one test; scaffolded: nothing passes). It ends
 `N files · N tests · 0 broken`. Fix before finishing; do not report done
 with red files.

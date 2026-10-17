@@ -12,6 +12,17 @@
 //                   header title ends " -- SOLUTION", has a Walkthrough:
 //   exercises/   ->  0 failed AND 0 passed AND >0 todo (a starter must be
 //                   untouched, and no test may pass against the stub)
+//                   -- two teaching methods change the starter rule
+//                   (FORMAT.md, "Debug hunts and scaffolded drills"):
+//     a module whose directory name contains "debug" (debug hunts):
+//                   the starter is complete, buggy code with no stub; it
+//                   must compile and have >=1 FAILED test (passes and
+//                   todos allowed)
+//     a module whose directory name contains "scaffold" (Parsons and
+//                   fill-in drills): the starter has a TODO stub or a
+//                   `/* ___ */` hole; 0 passed AND (todo + failed) > 0
+//   solutions/   ->  always all green, in every module, and no `/* ___ */`
+//                   hole left
 //   the pair     ->  same header (number, title, stars, tier, concepts) and a
 //                   BYTE-IDENTICAL tests block
 //
@@ -57,11 +68,22 @@ public class Verify {
     static final Pattern TEST_CALL = Pattern.compile("^\\s*test\\(\"", Pattern.MULTILINE);
     static final Pattern DONE = Pattern.compile("#done passed=(\\d+) failed=(\\d+) todo=(\\d+)");
     static final String STUB = "throw new UnsupportedOperationException(\"TODO\")";
+    static final String HOLE = "/* ___ */";
     static final long TIMEOUT_MS = 10_000;
     static final long SLOW_MS = 2_000;
 
 
     record Job(String module, String kind, String file, Path path) {}
+
+    /** debug hunts: the starter is complete code carrying real bugs */
+    static boolean debugModule(String module) {
+        return module.contains("debug");
+    }
+
+    /** Parsons and fill-in drills: the starter has stubs or holes */
+    static boolean scaffoldedModule(String module) {
+        return module.contains("scaffold");
+    }
 
     record Outcome(int passed, int failed, int todo, long ms, String broken, String detail) {}
 
@@ -236,6 +258,7 @@ public class Verify {
         if (solution) {
             if (!header.body().startsWith("Walkthrough:")) throw new Broken("solution has no Walkthrough: block");
             if (src.contains(STUB)) throw new Broken("solution still contains a TODO stub");
+            if (src.contains(HOLE)) throw new Broken("solution still contains a `" + HOLE + "` hole");
             var exPath = job.path().getParent().getParent().resolve("exercises").resolve(job.file());
             if (Files.exists(exPath)) {
                 var exSrc = Files.readString(exPath, StandardCharsets.UTF_8);
@@ -244,7 +267,13 @@ public class Verify {
                 if (!splitTests(exSrc)[1].equals(split[1])) throw new Broken("tests block is not byte-identical to the exercise's");
             }
         } else {
-            if (!src.contains(STUB)) throw new Broken("exercise has no `" + STUB + "` stub");
+            if (scaffoldedModule(job.module())) {
+                if (!src.contains(STUB) && !src.contains(HOLE)) {
+                    throw new Broken("scaffolded exercise has no `" + STUB + "` stub and no `" + HOLE + "` hole");
+                }
+            } else if (!debugModule(job.module())) {
+                if (!src.contains(STUB)) throw new Broken("exercise has no `" + STUB + "` stub");
+            }
             if (!header.body().contains("\u2192")) throw new Broken("prompt has no \u2192 example");
             if (!header.body().contains("hint:")) throw new Broken("prompt has no hint: line");
         }
@@ -381,6 +410,12 @@ public class Verify {
             if (total == 0) broken = "no tests ran";
             else if (job.kind().equals("solutions") && failed > 0) broken = failed + " failing test(s)";
             else if (job.kind().equals("solutions") && todo > 0) broken = todo + " TODO left in a solution";
+            else if (job.kind().equals("exercises") && debugModule(job.module())) {
+                if (failed == 0) broken = "a debug-hunt starter must fail at least one test (no bug a test can see)";
+            } else if (job.kind().equals("exercises") && scaffoldedModule(job.module())) {
+                if (passed > 0) broken = passed + " test(s) pass against the untouched scaffold";
+                else if (failed + todo == 0) broken = "nothing left to do in a scaffolded starter";
+            }
             else if (job.kind().equals("exercises") && failed > 0) broken = failed + " failing test(s) in a starter";
             else if (job.kind().equals("exercises") && passed > 0) broken = passed + " test(s) pass against the untouched stub";
             else if (job.kind().equals("exercises") && todo == 0) broken = "nothing left to do \u2014 is the stub missing?";
