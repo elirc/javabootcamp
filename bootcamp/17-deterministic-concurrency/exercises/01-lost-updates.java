@@ -72,6 +72,7 @@ class Exercise {
         test("with compare-and-set the stale write fails and is counted", () -> {
             eq(runCas("ABAB"), new CasRun(1, 1));
             eq(runCas("AABB"), new CasRun(2, 0));
+            eq(runCas("ABAAAB"), new CasRun(2, 1));
         });
         test("a worker whose CAS failed reads again and then succeeds", () -> {
             eq(runCas("ABABBB"), new CasRun(2, 1));
