@@ -18,11 +18,12 @@
 //  COMPARE-AND-SET is how AtomicInteger fixes it without a lock. The write
 //  says "set to r + 1 only if the value is still r". When another worker
 //  got there first, the CAS fails, nothing is overwritten, and the worker
-//  reads again and retries. incrementAndGet() is exactly that retry loop
-//  around the hardware's CAS instruction. Under CAS no completed increment
+//  reads again and retries. updateAndGet() is exactly that retry loop;
+//  incrementAndGet() means the same, though the JIT may use one atomic
+//  add instruction (LOCK XADD on x86). Under CAS no completed increment
 //  is ever lost; contention costs retries instead.
-//  The model's register map is the important detail: a worker with a
-//  pending READ holds a stale copy, and the bug is writing from it.
+//  The register map is the detail: a worker with a pending READ holds a
+//  stale copy, and the bug is writing from it.
 
 import static bootcamp.Check.*;
 
