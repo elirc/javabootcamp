@@ -11,7 +11,8 @@
 //                     RuntimeException is caught and its message added to
 //                     failures(); runAll() runs until the queue is empty,
 //                     including tasks queued meanwhile, and returns how
-//                     many ran; past 10,000 → IllegalStateException
+//                     many ran; if 10,000 have run and more are still
+//                     queued → IllegalStateException
 //    EmailBatcher     sendAll(recipients) queues one task per recipient,
 //                     in order; a send that throws is queued ONCE more at
 //                     the back; failing again adds it to gaveUp()
