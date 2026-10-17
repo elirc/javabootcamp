@@ -92,6 +92,7 @@ class Exercise {
         });
         test("render escapes quotes, backslashes and control characters", () -> {
             eq(render(str("a\"b\\c\nd\te\u0001")), "\"a\\\"b\\\\c\\nd\\te\\u0001\"");
+            eq(render(str("\r\u001f")), "\"\\u000d\\u001f\"");
             var accented = "caf" + (char) 0xE9;
             eq(render(str(accented)), "\"" + accented + "\"");
         });
