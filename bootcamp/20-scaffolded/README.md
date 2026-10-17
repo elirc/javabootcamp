@@ -82,7 +82,8 @@ How to solve one:
 6. **Copy before you sort a parameter.** Sorting the caller's list is a
    side effect, and `List.of` lists cannot be sorted at all.
 7. **Mind the units.** A clock in milliseconds and a rate per second
-   meet in exactly one division by 1000.0, not 1000.
+   meet in exactly one division by 1000. Do it in floating point:
+   `(now - last) / 1000` on longs is 0 for every gap under a second.
 8. **Ties need a rule.** Without a PriorityQueue (or another explicit
    order), a topological sort's output depends on hash order.
 9. **Records have no setters.** Each state change builds a new value.
