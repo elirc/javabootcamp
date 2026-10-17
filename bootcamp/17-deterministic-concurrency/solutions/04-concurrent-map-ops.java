@@ -21,9 +21,10 @@
 //  once per key even when many threads ask at the same moment, and a null
 //  result is not stored. Keep the function short and never touch the same
 //  map from inside it; that can deadlock or throw.
-//  wordCounts runs on a parallel stream to prove the point: merge gives
-//  the exact count under real concurrency, and the test checks totals,
-//  which do not depend on the order threads ran in.
+//  The RivalMap tests run a rival's call inside your get(), the exact gap
+//  a get-then-put leaves, so that bug fails on every run. wordCounts and
+//  the 8-thread test use real threads and check only totals, which do
+//  not depend on the order the threads ran in.
 
 import static bootcamp.Check.*;
 
@@ -34,8 +35,46 @@ import java.util.function.*;
 
 class Exercise {
 
+    // Given, for the tests (do not change it): a ConcurrentHashMap that lets
+    // a rival thread act right after the next read through get(), which
+    // getOrDefault and containsKey use too. A get-then-put then loses the
+    // rival's update on every run; one atomic map call never reads that way.
+    static final class RivalMap<V> extends ConcurrentHashMap<String, V> {
+        private Runnable rival;
+        boolean rivalRan;
+
+        void rivalAfterNextRead(Runnable action) {
+            rival = action;
+            rivalRan = false;
+        }
+
+        void calm() {
+            rival = null;
+        }
+
+        @Override
+        public V get(Object key) {
+            V seen = super.get(key);
+            var action = rival;
+            if (action != null) {
+                rival = null;
+                rivalRan = true;
+                action.run();
+            }
+            return seen;
+        }
+    }
+
     static final class Stock {
-        private final ConcurrentHashMap<String, Integer> onHand = new ConcurrentHashMap<>();
+        private final ConcurrentHashMap<String, Integer> onHand;
+
+        Stock() {
+            this(new ConcurrentHashMap<>());
+        }
+
+        Stock(ConcurrentHashMap<String, Integer> onHand) {
+            this.onHand = onHand;
+        }
 
         void receive(String sku, int n) {
             if (n < 1) throw new IllegalArgumentException("receive needs a positive quantity: " + n);
@@ -64,12 +103,17 @@ class Exercise {
     }
 
     static final class Loader {
-        private final ConcurrentHashMap<String, String> cache = new ConcurrentHashMap<>();
+        private final ConcurrentHashMap<String, String> cache;
         private final Function<String, String> source;
         private final AtomicInteger loads = new AtomicInteger();
 
         Loader(Function<String, String> source) {
+            this(source, new ConcurrentHashMap<>());
+        }
+
+        Loader(Function<String, String> source, ConcurrentHashMap<String, String> cache) {
             this.source = source;
+            this.cache = cache;
         }
 
         String get(String key) {
@@ -110,17 +154,14 @@ class Exercise {
             ok(stock.reserve("bolt", 2));
             eq(stock.onHand("bolt"), 1);
         });
-        test("reserving the last unit removes the sku", () -> {
+        test("reserving the last unit removes the sku; an unknown sku is false and creates nothing", () -> {
             var stock = new Stock();
             stock.receive("bolt", 2);
             stock.receive("nut", 1);
             ok(stock.reserve("bolt", 2));
             eq(stock.skus(), Set.of("nut"));
-        });
-        test("reserving an unknown sku is false and creates nothing", () -> {
-            var stock = new Stock();
             ok(!stock.reserve("ghost", 1));
-            eq(stock.skus(), Set.of());
+            eq(stock.skus(), Set.of("nut"));
         });
         test("quantities must be positive", () -> {
             var stock = new Stock();
@@ -135,6 +176,32 @@ class Exercise {
             eq(loader.get("x1"), null);
             eq(loader.get("x1"), null);
             eq(loader.loads(), 3);
+        });
+        test("receive and reserve lose nothing when a rival acts between a read and a write", () -> {
+            var map = new RivalMap<Integer>();
+            var stock = new Stock(map);
+            stock.receive("bolt", 1);
+            map.rivalAfterNextRead(() -> stock.receive("bolt", 5));
+            stock.receive("bolt", 3);
+            map.calm();
+            eq(stock.onHand("bolt"), map.rivalRan ? 9 : 4);
+            stock.receive("nut", 2);
+            var rivalGot = new boolean[1];
+            map.rivalAfterNextRead(() -> rivalGot[0] = stock.reserve("nut", 2));
+            boolean mine = stock.reserve("nut", 2);
+            map.calm();
+            eq((mine ? 1 : 0) + (rivalGot[0] ? 1 : 0), 1);
+            eq(stock.onHand("nut"), 0);
+        });
+        test("the loader never loads a key twice, even with a rival between check and load", () -> {
+            var map = new RivalMap<String>();
+            var loader = new Loader(k -> k.toUpperCase(Locale.ROOT), map);
+            var rivalSaw = new String[1];
+            map.rivalAfterNextRead(() -> rivalSaw[0] = loader.get("k"));
+            eq(loader.get("k"), "K");
+            map.calm();
+            eq(loader.loads(), 1);
+            if (map.rivalRan) eq(rivalSaw[0], "K");
         });
         test("word counts from a parallel stream are exact", () -> {
             var lines = new ArrayList<String>();
