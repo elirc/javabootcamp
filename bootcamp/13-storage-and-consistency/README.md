@@ -202,4 +202,7 @@ gives up on purpose.
 ---
 
 **Done with the system-design block?** Read the guide that ties modules
-09–13 together into whole designs. **Next:** `astraupskill/03-SYSTEM-DESIGN.md`
+09–13 together into whole designs, `astraupskill/03-SYSTEM-DESIGN.md`,
+then start the next block on writing code that stays easy to change.
+
+**Next:** `bootcamp/14-generics-and-interfaces`
