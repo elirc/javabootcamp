@@ -85,6 +85,10 @@ class Exercise {
             eq(store.handle("acme", "k9", flaky), new Response(201, "paid"));
             eq(store.handle("acme", "k9", flaky), new Response(201, "paid"));
             eq(runs[0], 2);
+            int[] crashes = {0};
+            Supplier<Response> crashy = () -> ++crashes[0] == 1 ? new Response(500, "oops") : new Response(201, "paid");
+            eq(store.handle("acme", "k8", crashy).status(), 500);
+            eq(store.handle("acme", "k8", crashy), new Response(201, "paid"));
         });
         test("a 4xx is a final answer and is stored", () -> {
             var store = new IdempotencyStore();

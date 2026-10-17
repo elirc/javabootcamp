@@ -76,6 +76,10 @@ class Exercise {
             eq(recover(List.of("BEGIN t1", "BEGIN t2", "SET t2 k second", "SET t1 k first",
                 "COMMIT t2", "COMMIT t1")), Map.of("k", "first"));
         });
+        test("a transaction's writes apply in their log order", () -> {
+            eq(recover(List.of("BEGIN t1", "SET t1 k 1", "SET t1 k 2", "DEL t1 j", "SET t1 j 3", "SET t1 x 0",
+                "DEL t1 x", "COMMIT t1")), Map.of("k", "2", "j", "3"));
+        });
         test("DEL removes a key an earlier transaction committed", () -> {
             eq(recover(List.of("BEGIN t1", "SET t1 a 1", "SET t1 b 2", "COMMIT t1",
                 "BEGIN t2", "DEL t2 a", "COMMIT t2")), Map.of("b", "2"));
