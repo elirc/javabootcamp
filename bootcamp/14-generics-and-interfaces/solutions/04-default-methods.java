@@ -16,8 +16,8 @@
 //  calls compiles and gives 85.50 instead of 85.00 on a 100.00 basket, a
 //  bug that only a test with real numbers notices.
 //  Rounding happens once per rule, HALF_UP to two places, with
-//  divide(HUNDRED, 2, HALF_UP); a bare divide() can throw on a
-//  non-terminating result.
+//  divide(HUNDRED, 2, HALF_UP). A bare divide(HUNDRED) keeps every digit
+//  (19.99 * 90 / 100 is 17.991), so the scale would drift rule by rule.
 //  The DIAMOND rule: when two interfaces give the same default, the class
 //  does not compile until it overrides the method. Inside the override,
 //  Greeter.super.greeting() calls a specific interface's version.

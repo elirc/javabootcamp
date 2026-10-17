@@ -7,7 +7,8 @@
 //  Walkthrough:
 //  T extends Comparable<T> is the textbook bound, and it is too strict.
 //  Beta extends Version, so Beta is a Comparable<Version>, not a
-//  Comparable<Beta>, and max(List<Beta>) would not compile against it.
+//  Comparable<Beta>: with that bound, `Beta newest = max(betas)` does not
+//  compile, because T would have to be Beta.
 //  T extends Comparable<? super T> reads "T can be compared with some
 //  supertype of itself"; it is exactly what Collections.max declares. The
 //  parameter is Collection<? extends T>, so a List<Beta> can also feed a
