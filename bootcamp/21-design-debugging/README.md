@@ -62,9 +62,9 @@ this, that is the first fix: inject the dependency, then hunt.
 ### 4 · One bug often hides another
 
 Fix the first bug, run everything, and expect a different test to fail.
-A retry that never stops hides the fact that it also stops one call too
-late; an outbox that loses messages hides the fact that it also
-reorders them. You are done when ALL tests pass, not when the first
+A job that crashes on its first record hides how it handles the
+second; a timeout that never fires hides that it would fire at the
+wrong moment. You are done when ALL tests pass, not when the first
 report is explained.
 
 ## The bug catalogue
