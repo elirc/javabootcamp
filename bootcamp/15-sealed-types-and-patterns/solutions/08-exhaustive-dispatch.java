@@ -152,6 +152,12 @@ class Exercise {
                 .on(Card.class, c -> 5)
                 .build();
             eq(SAMPLES.stream().map(risk::dispatch).toList(), List.of(5, 1, 1, 1));
+            var tiered = Dispatcher.<Payment, Integer>forSealed(Payment.class)
+                .on(Payment.class, p -> 1)
+                .on(Wallet.class, w -> 2)
+                .on(Card.class, c -> 5)
+                .build();
+            eq(SAMPLES.stream().map(tiered::dispatch).toList(), List.of(5, 1, 2, 2));
         });
         test("build refuses missing cases and names them, sorted", () -> {
             var builder = Dispatcher.<Payment, String>forSealed(Payment.class).on(Card.class, c -> "card");
