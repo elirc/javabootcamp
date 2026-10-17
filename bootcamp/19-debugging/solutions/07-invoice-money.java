@@ -61,6 +61,7 @@ class Exercise {
         test("tax that is not on a half rounds to the nearest cent", () -> {
             eq(tax(new BigDecimal("19.99"), "0.08").toPlainString(), "1.60");
             eq(tax(new BigDecimal("10.00"), "0.0726").toPlainString(), "0.73");
+            eq(tax(new BigDecimal("10.00"), "0.0721").toPlainString(), "0.72");
         });
         test("any zero total is free, whatever its scale", () -> {
             ok(isFree(BigDecimal.ZERO), "0");
