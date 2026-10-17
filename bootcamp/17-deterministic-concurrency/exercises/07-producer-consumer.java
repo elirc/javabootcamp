@@ -17,7 +17,8 @@
 //    pipeline(input, cap, work)  a producer thread puts every input in an
 //                        ArrayBlockingQueue(cap), then a poison pill; a
 //                        consumer thread applies work until the pill; both
-//                        joined; returns the outputs in input order
+//                        joined; returns the outputs in input order.
+//                        Any int is real data, -1 and 0 included
 //
 //      simulate(2, 3, "PPPCPCC") → SimResult([1, 2, 3], 1, 0)
 //
@@ -98,6 +99,8 @@ class Exercise {
             }
             eq(pipeline(input, 1, x -> x * 2), doubled);
         });
+        test("pipeline passes through values a magic-number pill would clash with", () ->
+            eq(pipeline(List.of(0, Integer.MIN_VALUE, Integer.MAX_VALUE, -1), 4, x -> x), List.of(0, Integer.MIN_VALUE, Integer.MAX_VALUE, -1)));
         test("pipeline with no input returns an empty list", () ->
             eq(pipeline(List.of(), 3, x -> x), List.of()));
         System.exit(report());
