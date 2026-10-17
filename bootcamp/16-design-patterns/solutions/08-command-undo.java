@@ -265,7 +265,7 @@ class Exercise {
             var cart = new Cart();
             var h = new History(cart);
             h.run(new AddItem("A", 1));
-            var bad = new Macro(List.of(new AddItem("B", 2), new SetQuantity("A", 9), new RemoveItem("ghost")));
+            var bad = new Macro(List.of(new AddItem("A", 2), new SetQuantity("A", 9), new AddItem("B", 2), new RemoveItem("ghost")));
             raises(IllegalStateException.class, () -> h.run(bad));
             eq(cart.snapshot(), Map.of("A", 1));
             eq(h.log(), List.of("add 1 x A"));
