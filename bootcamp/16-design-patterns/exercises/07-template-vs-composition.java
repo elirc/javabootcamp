@@ -104,9 +104,10 @@ class Exercise {
             eq(new CsvExporter().export(SALES),
                 "item,qty,amount\r\nbolt,3,2.50\r\nnut,10,0.33\r\nwasher,1,4.00\r\nTOTAL,14,6.83\r\n"));
         test("CSV quotes an item holding a comma, a quote or a line break", () -> {
-            var rows = List.of(new Row("5\" bolt, zinc", 1, BigDecimal.ONE), new Row("two\nlines", 2, BigDecimal.TEN));
+            var rows = List.of(new Row("5\" bolt, zinc", 1, BigDecimal.ONE), new Row("two\nlines", 2, BigDecimal.TEN),
+                new Row("cr\rhere", 0, BigDecimal.ZERO));
             eq(new CsvExporter().export(rows),
-                "item,qty,amount\r\n\"5\"\" bolt, zinc\",1,1.00\r\n\"two\nlines\",2,10.00\r\nTOTAL,3,11.00\r\n");
+                "item,qty,amount\r\n\"5\"\" bolt, zinc\",1,1.00\r\n\"two\nlines\",2,10.00\r\n\"cr\rhere\",0,0.00\r\nTOTAL,3,11.00\r\n");
         });
         test("amounts round half up to two decimals", () -> {
             var rows = List.of(new Row("a", 1, new BigDecimal("0.005")), new Row("b", 1, new BigDecimal("0.004")));
