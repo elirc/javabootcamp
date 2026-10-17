@@ -83,13 +83,14 @@ class Exercise {
             eq(new BankAdapter(bank, ACCOUNTS).charge("c2", d("9.99"), "GBP"), new PaymentResult(true, "REF-778", null));
         });
         test("the request carries the account, whole cents and an upper-case currency", () -> {
-            var bank = new LegacyBankApi("OK|R1", "OK|R2", "OK|R3");
+            var bank = new LegacyBankApi("OK|R1", "OK|R2", "OK|R3", "OK|R4");
             var gateway = new BankAdapter(bank, ACCOUNTS);
             gateway.charge("c1", d("12.5"), "eur");
             gateway.charge("c1", d("12.500"), "EUR");
             gateway.charge("c2", d("1000"), "usd");
+            gateway.charge("c2", d("4.35"), "Gbp");
             eq(bank.requests, List.of("ACCT=NO-1;CENTS=1250;CUR=EUR", "ACCT=NO-1;CENTS=1250;CUR=EUR",
-                "ACCT=GB-22;CENTS=100000;CUR=USD"));
+                "ACCT=GB-22;CENTS=100000;CUR=USD", "ACCT=GB-22;CENTS=435;CUR=GBP"));
         });
         test("decline codes become readable reasons", () -> {
             var gateway = new BankAdapter(new LegacyBankApi("ERR|51", "ERR|54", "ERR|05"), ACCOUNTS);
