@@ -114,12 +114,13 @@ class Exercise {
         });
         test("quoteAll lists every option in registration order", () -> {
             var checkout = new Checkout();
+            checkout.register("pickup", flatRate(d("0")));
             checkout.register("standard", flatRate(d("4.99")));
             checkout.register("express", byWeight(d("6"), d("9")));
             checkout.register("budget", freeOver(d("30"), flatRate(d("2.50"))));
             var quotes = checkout.quoteAll(parcel("2.2", "20"));
-            eq(new ArrayList<>(quotes.keySet()), List.of("standard", "express", "budget"));
-            eq(new ArrayList<>(quotes.values()), List.of(d("4.99"), d("18.00"), d("2.50")));
+            eq(new ArrayList<>(quotes.keySet()), List.of("pickup", "standard", "express", "budget"));
+            eq(new ArrayList<>(quotes.values()), List.of(d("0.00"), d("4.99"), d("18.00"), d("2.50")));
         });
         System.exit(report());
     }
