@@ -5,7 +5,11 @@ what the beginner Java CLI projects actually need: a to-do manager, a
 library tracker, a quiz engine, a bank simulator, an expense tracker, an
 order system. A fifth block then takes the same habits up a level, to
 system design: caches, rate limits, partitioning, messaging and storage,
-each built as a small in-process model you can test. It runs **fully offline** — every exercise is a single
+each built as a small in-process model you can test. Blocks 6 and 7 go
+deeper into the language (generics, sealed types, design patterns,
+concurrency you can test deterministically, parsing) and then change the
+way you practise: debug hunts (find and fix planted bugs), Parsons
+problems and fill-in programs. It runs **fully offline** — every exercise is a single
 self-contained file graded by its own tests, runnable with nothing but a
 JDK 17.
 
@@ -42,7 +46,7 @@ single source file directly (Java 11+). (`☐ todo` = not written yet ·
 
 ```
 FLIGHTPLAN.md        ← the plan. Read it first.
-bootcamp/            ← the main event: 13 modules, 104 exercises
+bootcamp/            ← the main event: 21 modules, 168 exercises
   01-language-core/           primitives vs references, int division and
                               overflow, boxed equality, switch expressions,
                               string equality, arrays, char arithmetic
@@ -84,6 +88,27 @@ bootcamp/            ← the main event: 13 modules, 104 exercises
   13-storage-and-consistency/ optimistic locking, write-ahead log recovery,
                               LSM trees, MVCC snapshots, CRDTs, vector
                               clocks, leases with fencing, two-phase commit
+  14-generics-and-interfaces/ bounded generics, PECS wildcards, inference,
+                              default methods, comparator composition, a
+                              generic repository, a typed heterogeneous map
+  15-sealed-types-and-patterns/ sealed hierarchies with records, instanceof
+                              patterns, an evaluator, Result types, visitor
+                              vs sealed dispatch, a JSON value type
+  16-design-patterns/         strategy, builder, factory, observer,
+                              decorator, adapter, template method, command
+                              with undo
+  17-deterministic-concurrency/ lost updates replayed, CAS loops, safe
+                              publication, ConcurrentHashMap compute/merge,
+                              manual executors, CompletableFuture, deadlocks
+  18-parsing-and-serialization/ tokenizers, quoted CSV, config files, line
+                              framing, JSON write/read, versioned records,
+                              round-trip properties
+  19-debugging/               debug hunts: the code is written and wrong;
+                              find and fix the bugs from modules 01-08
+  20-scaffolded/              Parsons problems (arrange the lines) and
+                              fill-in programs (complete the holes)
+  21-design-debugging/        debug hunts on system-design code: caches,
+                              buckets, retries, rings, outboxes, WALs
   _lib/check/bootcamp/        the test harness (Check, BqMain; JDK only)
   _lib/FORMAT.md              the authoring contract
   Verify.java                 maintainer check: every file, both ways
