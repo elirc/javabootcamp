@@ -12,8 +12,9 @@
 //  N" (N = where that item starts).
 //  2) findCounterexample(enc, dec, seed, trials) hunts for an input
 //  where dec(enc(x)) is not x (or either throws a RuntimeException).
-//  Generate with new Random(seed): per trial size = nextInt(5), per item
-//  length = nextInt(4), per char "a;\b".charAt(nextInt(4)). On the
+//  Generate with new Random(seed): per trial size = nextInt(5), then per
+//  item its length = nextInt(4), then per char one of the 4 chars a ;
+//  backslash b, picked by nextInt(4) (in Java: "a;\\b"). On the
 //  first failure, SHRINK: try removing each item (index ascending), then
 //  each char of each item (item, then char, ascending); take the first
 //  candidate that still fails and start over; stop when none fails.
