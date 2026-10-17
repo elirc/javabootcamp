@@ -70,7 +70,7 @@ class Exercise {
 
     static List<Event> decideClose(Account s) {
         if (!s.open()) throw new IllegalStateException("closed");
-        if (/* ___ */ hole()) throw new IllegalStateException("balance must be 0 to close"); // money left?
+        if (/* ___ */ hole()) throw new IllegalStateException("balance must be 0 to close"); // not exactly 0?
         return List.of(new Closed());
     }
 
@@ -102,6 +102,8 @@ class Exercise {
         test("closing needs a zero balance and ends the account", () -> {
             var rich = replay(List.of(new Opened("a", 0), new Deposited(300)));
             raises(IllegalStateException.class, () -> decideClose(rich), "balance must be 0");
+            var owing = replay(List.of(new Opened("a", 100), new Withdrawn(40)));
+            raises(IllegalStateException.class, () -> decideClose(owing), "balance must be 0");
             var history = new ArrayList<Event>(List.of(new Opened("a", 0), new Deposited(300), new Withdrawn(300)));
             history.addAll(decideClose(replay(history)));
             var closed = replay(history);
