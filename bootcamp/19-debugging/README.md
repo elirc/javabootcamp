@@ -44,21 +44,24 @@ value after each one (a print, or a debugger breakpoint) until you find
 the first step whose output is wrong. That step holds the bug.
 
 ```
-placedAt = 2024-03-06T01:30Z
-  → atZone(...)  = 2024-03-06T01:30Z   ← already wrong: should be 20:30 New York
-  → toLocalDate  = 2024-03-06
+"A Gold member's 100.00 order came to -900.00"
+  tierOf(customer)        = GOLD     ok
+  discountFor(GOLD)       = 10       ok: a percent, as documented
+  price * (1 - discount)  = -900     <- first wrong value: the bug is here
 ```
 
 Ask "what is different between the case that works and the one that
-fails?" Small ids versus large ids, literals versus parsed strings, June
-versus March: the difference is usually the bug's name.
+fails?" One customer versus another, a short name versus a long one, a
+weekday versus a weekend: the difference is usually the bug's name.
 
 ### 3 · Fix the cause, not the symptom
 
-Fix it where the wrong value is born. If two users share a list, copy in
-the constructor (one place), not in every caller. If `equals` is wrong,
-`hashCode` probably is too. After the fix, run ALL the tests: a fix that
-turns one red test green and another green test red was a guess.
+Fix it where the wrong value is born. If a missing name crashes three
+screens, validate it where the object is built (one place), not in every
+screen. If one half of a pair is wrong (`encode`/`decode`,
+`open`/`close`), check its partner too. After the fix, run ALL the
+tests: a fix that turns one red test green and another green test red
+was a guess.
 
 ### 4 · Pin it with a test
 
