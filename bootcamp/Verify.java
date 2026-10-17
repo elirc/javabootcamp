@@ -15,12 +15,13 @@
 //                   -- two teaching methods change the starter rule
 //                   (FORMAT.md, "Debug hunts and scaffolded drills"):
 //     a module whose directory name contains "debug" (debug hunts):
-//                   the starter is complete, buggy code with no stub; it
-//                   must compile and have >=1 FAILED test (passes and
-//                   todos allowed)
+//                   the starter is complete, buggy code with no stub and
+//                   no hole; it must compile and have >=1 FAILED test and
+//                   0 todo (passing tests are allowed)
 //     a module whose directory name contains "scaffold" (Parsons and
 //                   fill-in drills): the starter has a TODO stub or a
-//                   `/* ___ */` hole; 0 passed AND (todo + failed) > 0
+//                   `/* ___ */` hole; then the ordinary rule: 0 failed
+//                   AND 0 passed AND >0 todo
 //   solutions/   ->  always all green, in every module, and no `/* ___ */`
 //                   hole left
 //   the pair     ->  same header (number, title, stars, tier, concepts) and a
@@ -271,7 +272,10 @@ public class Verify {
                 if (!src.contains(STUB) && !src.contains(HOLE)) {
                     throw new Broken("scaffolded exercise has no `" + STUB + "` stub and no `" + HOLE + "` hole");
                 }
-            } else if (!debugModule(job.module())) {
+            } else if (debugModule(job.module())) {
+                if (src.contains(STUB)) throw new Broken("a debug-hunt starter is complete code but contains a `" + STUB + "` stub");
+                if (src.contains(HOLE)) throw new Broken("a debug-hunt starter is complete code but contains a `" + HOLE + "` hole");
+            } else {
                 if (!src.contains(STUB)) throw new Broken("exercise has no `" + STUB + "` stub");
             }
             if (!header.body().contains("\u2192")) throw new Broken("prompt has no \u2192 example");
@@ -412,10 +416,10 @@ public class Verify {
             else if (job.kind().equals("solutions") && todo > 0) broken = todo + " TODO left in a solution";
             else if (job.kind().equals("exercises") && debugModule(job.module())) {
                 if (failed == 0) broken = "a debug-hunt starter must fail at least one test (no bug a test can see)";
-            } else if (job.kind().equals("exercises") && scaffoldedModule(job.module())) {
-                if (passed > 0) broken = passed + " test(s) pass against the untouched scaffold";
-                else if (failed + todo == 0) broken = "nothing left to do in a scaffolded starter";
+                else if (todo > 0) broken = todo + " todo in a debug-hunt starter (it is complete code: no test may reach a TODO)";
             }
+            // scaffolded starters fall through: like any starter, every test must
+            // reach a stub or a hole (todo), none may pass and none may fail
             else if (job.kind().equals("exercises") && failed > 0) broken = failed + " failing test(s) in a starter";
             else if (job.kind().equals("exercises") && passed > 0) broken = passed + " test(s) pass against the untouched stub";
             else if (job.kind().equals("exercises") && todo == 0) broken = "nothing left to do \u2014 is the stub missing?";

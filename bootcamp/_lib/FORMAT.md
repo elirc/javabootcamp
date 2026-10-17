@@ -187,8 +187,9 @@ green**, with no TODO stub and no `/* ___ */` hole left.
   no TODO stub.
 - The prompt states the intended behaviour and a symptom report ("users
   say…"). It never says where the bug is.
-- Verify: the starter compiles and **at least one test FAILS** (✘).
-  Passing tests are expected (the code mostly works); a todo is allowed.
+- Verify: the starter has no TODO stub and no `/* ___ */` hole, it
+  compiles, **at least one test FAILS** (✘) and no test is todo.
+  Passing tests are expected (the code mostly works).
 - The solution is the fixed code. Its Walkthrough says how to find each
   bug: reproduce, narrow, fix, and the test that pins it.
 - A starter must never hang or crash the run: a bug that would loop
@@ -208,9 +209,9 @@ green**, with no TODO stub and no `/* ___ */` hole left.
   `/* ___ */ hole()`, where `hole()` is a starter helper that throws
   `UnsupportedOperationException("TODO")`, so an untouched hole reports
   todo. The solution fills every hole and drops the helper.
-- Verify: the starter has a TODO stub or a `/* ___ */` hole, **0 tests
-  pass**, and every test is todo or failed (as for an ordinary starter,
-  each test must reach a stub or a hole).
+- Verify: the starter has a TODO stub or a `/* ___ */` hole, and then
+  the ordinary starter rule holds: every test reaches a stub or a hole,
+  so **every test is todo**, 0 pass and 0 fail.
 
 ## Grading = learner head + canonical tests + learner tail
 
@@ -293,6 +294,6 @@ Verify compiles the harness, then every file with
 fresh nonce, and enforces everything above: header grammar, the
 exercise/solution pairing, byte-identical tests blocks, 4–9 tests, ASCII
 code, every solution all green, every exercise todo-only (debug hunts:
-compiles and fails at least one test; scaffolded: nothing passes). It ends
+complete code that fails at least one test and reaches no TODO). It ends
 `N files · N tests · 0 broken`. Fix before finishing; do not report done
 with red files.
