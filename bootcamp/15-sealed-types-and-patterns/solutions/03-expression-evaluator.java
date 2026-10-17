@@ -139,6 +139,8 @@ class Exercise {
             eq(show(new Mul(new Add(v("a"), num(1)), v("b"))), "(a + 1) * b");
             eq(show(new Mul(v("b"), new Add(v("a"), num(1)))), "b * (a + 1)");
             eq(show(new Add(new Add(v("a"), v("b")), v("c"))), "a + b + c");
+            eq(show(new Add(v("a"), new Add(v("b"), v("c")))), "a + b + c");
+            eq(show(new Mul(new Mul(v("a"), v("b")), new Neg(v("c")))), "a * b * -c");
         });
         test("show brackets a compound operand of Neg only", () -> {
             eq(show(new Neg(v("x"))), "-x");
