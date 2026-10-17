@@ -105,6 +105,11 @@ class Exercise {
             eq(dst, List.of("bb", "ddd"));
             eq(src, List.of("a", "bb", "c", "ddd"));
         });
+        test("copyMatching into a Set counts only the items it accepted", () -> {
+            Set<Object> dst = new HashSet<>(Set.of("bb"));
+            eq(copyMatching(List.of("a", "bb", "ddd", "ddd"), o -> o.toString().length() > 1, dst), 1);
+            eq(dst, Set.of("bb", "ddd"));
+        });
         test("swapEnds swaps the first and last item of any List<?>", () -> {
             var words = new ArrayList<>(List.of("a", "b", "c"));
             swapEnds(words);
