@@ -46,10 +46,12 @@ while (true) {
 }                                                   // someone did: re-read, retry
 ```
 
-`incrementAndGet`, `updateAndGet`, `accumulateAndGet` and
-`ConcurrentHashMap.compute` are this loop, written for you. The
-function you pass may run more than once, so it must have no side
-effects.
+`updateAndGet` and `accumulateAndGet` are this loop, written for you
+(`incrementAndGet` too, in effect), and the function you pass may run
+more than once, so it must have no side effects.
+`ConcurrentHashMap.compute`, `merge` and `computeIfAbsent` work
+differently: they lock that key's bin and run the function once, so
+keep the function short and never touch the same map from inside it.
 
 ### 4 · Make the scheduler a parameter
 
@@ -61,7 +63,9 @@ test:        new EmailBatcher(Runnable::run, fakeMailer)    // everything runs i
 
 The same goes for futures (complete them by hand in the test), for
 time (inject a `Clock`, module 04 and the system-design block), and for
-the interleaving itself (replay a schedule string, exercises 01 and 07).
+the interleaving itself: replay a schedule string (exercises 01 and 07),
+or hand the code a rival that acts between its read and its write
+(exercises 02 to 04), so a race fails on every run, not once a week.
 Real threads appear in a few tests here only where the RESULT is
 independent of the order: exact totals, FIFO output from a single
 consumer, results collected by index.
@@ -131,4 +135,4 @@ the standard fix for the transfer deadlock between two bank accounts.
 
 ---
 
-**Next:** back to `FLIGHTPLAN.md` to pick your next block.
+**Next:** `bootcamp/18-parsing-and-serialization`
