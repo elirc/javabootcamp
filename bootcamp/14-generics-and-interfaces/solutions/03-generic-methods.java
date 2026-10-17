@@ -94,10 +94,10 @@ class Exercise {
             eq(pairs, List.of(new Pair<Number, Number>(1, 2.5), new Pair<Number, Number>(2, 0.5)));
         });
         test("indexBy keys items by the function, in encounter order", () -> {
-            var skus = List.of(new Sku("B2", "bolt"), new Sku("A1", "anchor"), new Sku("C3", "cable"));
+            var skus = List.of(new Sku("Q7", "quill"), new Sku("A1", "anchor"), new Sku("M3", "mallet"));
             var byCode = indexBy(skus, Sku::code);
             eq(byCode.get("A1").name(), "anchor");
-            eq(new ArrayList<>(byCode.keySet()), List.of("B2", "A1", "C3"));
+            eq(new ArrayList<>(byCode.keySet()), List.of("Q7", "A1", "M3"));
         });
         test("indexBy throws IllegalStateException naming a duplicate key", () -> {
             var skus = List.of(new Sku("A1", "anchor"), new Sku("Q7", "quill"), new Sku("A1", "awl"));
