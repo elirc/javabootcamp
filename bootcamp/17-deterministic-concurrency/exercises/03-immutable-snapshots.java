@@ -15,8 +15,9 @@
 //    withRoute(p, ts)  a new Config with route p set to ts (copied)
 //    ConfigHolder      current() returns the published snapshot;
 //                      update(change) applies change to it atomically and
-//                      returns the NEW snapshot. A reader keeps whatever
-//                      snapshot it already holds
+//                      returns the NEW snapshot. If another update lands
+//                      while change runs, change runs AGAIN on the newer
+//                      snapshot. A reader keeps the snapshot it holds
 //  One test runs 4 threads x 250 withHost updates: all 1,000 must arrive.
 //
 //      holder.update(c -> c.withHost("h2"))  → the new Config, hosts [h1, h2]
@@ -126,6 +127,17 @@ class Exercise {
             holder.update(c -> c.withRoute("/api", List.of("svc-b")));
             eq(seenByRequest.routes().get("/api"), List.of("svc-a"));
             eq(holder.current().routes().get("/api"), List.of("svc-b"));
+        });
+        test("an update overtaken by another runs its change again on the newer snapshot", () -> {
+            var holder = new ConfigHolder(sample());
+            var calls = new int[1];
+            var result = holder.update(c -> {
+                if (calls[0]++ == 0) holder.update(other -> other.withHost("rival"));
+                return c.withHost("mine");
+            });
+            eq(result.hosts(), List.of("h1", "rival", "mine"));
+            ok(holder.current() == result);
+            eq(calls[0], 2);
         });
         test("four threads updating through one holder lose no update", () -> {
             var holder = new ConfigHolder(new Config("edge", List.of(), Map.of()));

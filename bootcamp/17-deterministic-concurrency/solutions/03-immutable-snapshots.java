@@ -8,9 +8,8 @@
 //  The simplest thread-safe object is one that never changes. An
 //  immutable Config can be read by any number of threads with no locks,
 //  and a reader can never see half an update, because there are no
-//  updates: a change builds a NEW Config and swaps the reference. Make
-//  the class final, every field private final, and copy everything
-//  mutable on the way in and out.
+//  updates: a change builds a NEW Config and swaps the reference. Final
+//  class, private final fields, and deep copies on the way in and out.
 //  Defensive copying is where it goes wrong. Storing the caller's list
 //  lets them change your "immutable" object later. List.copyOf and
 //  Map.copyOf make unmodifiable copies, but a Map<String, List<String>>
@@ -22,8 +21,9 @@
 //  same guarantee for the object's contents.
 //  update uses updateAndGet, a CAS retry loop: if two threads update at
 //  once, one retries its function on the newer snapshot, so no update is
-//  lost. That only works because the function is pure (withHost has no
-//  side effects); a function that logs or charges money would run twice.
+//  lost. A test makes that happen on every run by updating from INSIDE a
+//  change; get() then set() loses the rival's host. The retry only works
+//  because the function is pure; one that charges money would run twice.
 //  getAndUpdate returns the OLD snapshot, the classic slip.
 
 import static bootcamp.Check.*;
@@ -137,6 +137,17 @@ class Exercise {
             holder.update(c -> c.withRoute("/api", List.of("svc-b")));
             eq(seenByRequest.routes().get("/api"), List.of("svc-a"));
             eq(holder.current().routes().get("/api"), List.of("svc-b"));
+        });
+        test("an update overtaken by another runs its change again on the newer snapshot", () -> {
+            var holder = new ConfigHolder(sample());
+            var calls = new int[1];
+            var result = holder.update(c -> {
+                if (calls[0]++ == 0) holder.update(other -> other.withHost("rival"));
+                return c.withHost("mine");
+            });
+            eq(result.hosts(), List.of("h1", "rival", "mine"));
+            ok(holder.current() == result);
+            eq(calls[0], 2);
         });
         test("four threads updating through one holder lose no update", () -> {
             var holder = new ConfigHolder(new Config("edge", List.of(), Map.of()));
