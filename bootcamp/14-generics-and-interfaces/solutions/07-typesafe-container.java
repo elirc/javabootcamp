@@ -132,7 +132,12 @@ class Exercise {
             ctx.put(Key.of("timeout", Integer.class), 30);
             ctx.put(Key.of("host", String.class), "h");
             ctx.put(Key.of("timeout", String.class), "30s");
-            eq(ctx.names(), List.of("host:String", "timeout:Integer", "timeout:String"));
+            ctx.put(Key.of("user", String.class), "ana");
+            ctx.put(Key.of("app", String.class), "shop");
+            ctx.put(Key.of("retries", Integer.class), 3);
+            ctx.put(Key.of("debug", Boolean.class), true);
+            eq(ctx.names(), List.of("app:String", "debug:Boolean", "host:String", "retries:Integer",
+                "timeout:Integer", "timeout:String", "user:String"));
         });
         System.exit(report());
     }
