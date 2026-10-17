@@ -56,6 +56,8 @@ class Exercise {
             var c = load(List.of("url=http://h/?a=b", "name=\"  x # y \""), schema, Set.of());
             eq(c.values(), Map.of("url", "http://h/?a=b", "name", "  x # y "));
             eq(load(List.of("name=", "url=a # b"), schema, Set.of()).values(), Map.of("name", "", "url", "a # b"));
+            eq(load(List.of("name=\"\"x\"\"", "url=\"half"), schema, Set.of()).values(),
+                Map.of("name", "\"x\"", "url", "\"half"));
         });
         test("a line without a key and an = is reported with its number", () -> {
             eq(load(List.of("# c", "just text", "=5", " = "), schema, Set.of()).errors(), List.of(

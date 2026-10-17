@@ -57,6 +57,7 @@ class Exercise {
             eq(parse("\"q\"\r\n"), List.of(List.of("q")));
             eq(parse(""), List.of());
             eq(parse("\n"), List.of(List.of("")));
+            eq(parse("a\rb,c"), List.of(List.of("a\rb", "c")));
         });
         test("an unterminated quote is reported at its opening offset", () -> {
             raises(IllegalArgumentException.class, () -> parse("a,\"bc"), "unterminated quote at 2");

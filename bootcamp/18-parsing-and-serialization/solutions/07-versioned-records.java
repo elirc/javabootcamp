@@ -115,6 +115,7 @@ class Exercise {
             raises(IllegalArgumentException.class, () -> decode("3;A;B;c;"), "bad opt-in ''");
             raises(IllegalArgumentException.class, () -> encode(new User("A;B", "C", "d", true)));
             raises(IllegalArgumentException.class, () -> encode(new User("A", "C", "d\ne", true)));
+            raises(IllegalArgumentException.class, () -> encode(new User("A", "C\r", "d", true)));
         });
         System.exit(report());
     }

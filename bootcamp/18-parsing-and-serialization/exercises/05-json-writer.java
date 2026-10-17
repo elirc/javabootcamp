@@ -47,6 +47,7 @@ class Exercise {
         });
         test("writes other control chars as 4-hex-digit escapes and keeps the rest", () -> {
             eq(toJson("\u0001x\u001f"), "\"\\u0001x\\u001f\"");
+            eq(toJson("\b\f\u007f"), "\"\\u0008\\u000c\u007f\"");
             eq(toJson("caf\u00e9 \u20ac /"), "\"caf\u00e9 \u20ac /\"");
         });
         test("writes lists, nested and empty, with no spaces", () -> {

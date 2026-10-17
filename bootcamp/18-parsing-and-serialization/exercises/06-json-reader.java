@@ -60,6 +60,7 @@ class Exercise {
             raises(IllegalArgumentException.class, () -> parse("[1.5]"), "unexpected '.' at 2");
             raises(IllegalArgumentException.class, () -> parse(" 9223372036854775808"), "number out of range at 1");
             raises(IllegalArgumentException.class, () -> parse("-a"), "unexpected 'a' at 1");
+            raises(IllegalArgumentException.class, () -> parse("+1"), "unexpected '+' at 0");
         });
         test("an unexpected char is reported at its offset", () -> {
             raises(IllegalArgumentException.class, () -> parse("[1 2]"), "unexpected '2' at 3");
