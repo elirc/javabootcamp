@@ -5,12 +5,11 @@
 // ─────────────────────────────────────────────────────────────────────────
 //
 //  Walkthrough:
-//  java.util.concurrent.atomic gives you single variables that update
-//  without a lock. incrementAndGet and addAndGet are read-modify-write in
-//  one indivisible step. LongAdder is the better counter when many
-//  threads write and few read: it spreads increments over cells and adds
-//  them up in sum(). That is why request counters in metrics libraries
-//  use it.
+//  java.util.concurrent.atomic gives single variables that update without
+//  a lock: incrementAndGet and addAndGet are read-modify-write in one
+//  indivisible step. LongAdder is the better counter when many threads
+//  write and few read: it spreads increments over cells and adds them up
+//  in sum(), which is why metrics libraries use it.
 //  "Keep the maximum" is a read-modify-write too: get() then set() can let
 //  a smaller value overwrite a bigger one that arrived in between.
 //  accumulateAndGet(ms, Math::max) runs the CAS retry loop for you.
@@ -21,10 +20,11 @@
 //  act: two threads both see 1 and both decrement. getAndDecrement() > 0
 //  is wrong a different way: it returns the right answer but leaves the
 //  count negative.
-//  Honesty about the threaded tests: they prove the totals are right in
-//  these runs, not that no race exists. A racy version can pass them by
-//  luck, which is exactly why the previous exercise replays interleavings
-//  deterministically, and why you check the design, not the luck.
+//  The count sits behind a Counter so a test can play the rival thread:
+//  RivalCounter takes a ticket right after your read, the moment a check-
+//  then-act or a stale write breaks, so those bugs fail on EVERY run. The
+//  threaded tests only show the totals; a racy max in slowest() can still
+//  pass them by luck, which is why you check the design, not the luck.
 
 import static bootcamp.Check.*;
 
@@ -64,12 +64,70 @@ class Exercise {
         }
     }
 
+    // The pool's shared count, behind an interface so a test can play the
+    // rival thread. Counter.atomic(n) is the real thing: an AtomicInteger.
+    interface Counter {
+        int get();
+        void set(int value);
+        boolean compareAndSet(int expected, int next);
+        int getAndDecrement();
+        int decrementAndGet();
+        int addAndGet(int delta);
+
+        static Counter atomic(int initial) {
+            var a = new AtomicInteger(initial);
+            return new Counter() {
+                public int get() { return a.get(); }
+                public void set(int value) { a.set(value); }
+                public boolean compareAndSet(int expected, int next) { return a.compareAndSet(expected, next); }
+                public int getAndDecrement() { return a.getAndDecrement(); }
+                public int decrementAndGet() { return a.decrementAndGet(); }
+                public int addAndGet(int delta) { return a.addAndGet(delta); }
+            };
+        }
+    }
+
+    // Given, for the tests (do not change it): a Counter where a rival thread
+    // takes one ticket right after each of your first `rivalTakes` reads that
+    // see a ticket. That is the exact moment a check-then-act or a stale
+    // write goes wrong, and here it happens on every run.
+    static final class RivalCounter implements Counter {
+        private final Counter real;
+        private int rivalTakes;
+        int rivalTook;
+
+        RivalCounter(int initial, int rivalTakes) {
+            this.real = Counter.atomic(initial);
+            this.rivalTakes = rivalTakes;
+        }
+
+        public int get() {
+            int seen = real.get();
+            if (rivalTakes > 0 && seen > 0) {
+                rivalTakes--;
+                rivalTook++;
+                real.decrementAndGet();
+            }
+            return seen;
+        }
+
+        public void set(int value) { real.set(value); }
+        public boolean compareAndSet(int expected, int next) { return real.compareAndSet(expected, next); }
+        public int getAndDecrement() { return real.getAndDecrement(); }
+        public int decrementAndGet() { return real.decrementAndGet(); }
+        public int addAndGet(int delta) { return real.addAndGet(delta); }
+    }
+
     static final class TicketPool {
-        private final AtomicInteger left;
+        private final Counter left;
 
         TicketPool(int tickets) {
             if (tickets < 0) throw new IllegalArgumentException("negative tickets: " + tickets);
-            left = new AtomicInteger(tickets);
+            left = Counter.atomic(tickets);
+        }
+
+        TicketPool(Counter left) {
+            this.left = left;
         }
 
         boolean tryTake() {
@@ -134,6 +192,22 @@ class Exercise {
             eq(pool.left(), 0);
             raises(IllegalArgumentException.class, () -> pool.takeUpTo(-1));
             raises(IllegalArgumentException.class, () -> new TicketPool(-1));
+        });
+        test("tryTake never oversells when a rival takes the last ticket after your read", () -> {
+            var last = new RivalCounter(1, 1);
+            boolean mine = new TicketPool(last).tryTake();
+            eq((mine ? 1 : 0) + last.rivalTook, 1);
+            eq(last.get(), 0);
+            var three = new RivalCounter(3, 1);
+            var pool = new TicketPool(three);
+            ok(pool.tryTake());
+            eq(three.rivalTook + 1 + pool.left(), 3);
+        });
+        test("takeUpTo re-reads after a rival moves first, and never goes below zero", () -> {
+            var two = new RivalCounter(2, 1);
+            int mine = new TicketPool(two).takeUpTo(3);
+            eq(mine + two.rivalTook, 2);
+            eq(two.get(), 0);
         });
         test("four threads recording 10,000 times each lose no update", () -> {
             var m = new Metrics();
