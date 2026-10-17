@@ -4,10 +4,9 @@
 //  run: java -cp ../../_lib/out 06-generic-repository.java
 // ─────────────────────────────────────────────────────────────────────────
 //
-//  One repository class serves every entity type: Customers with Long ids
-//  and Skus with String ids. Finish InMemoryRepository; rows are kept in
-//  id order (numeric for Long, A-Z for String), and every list below is
-//  in id order:
+//  One repository class serves Customers (Long ids) and Skus (String
+//  ids). Finish InMemoryRepository. Every list it returns is in id order:
+//  numeric for Long, A-Z for String.
 //
 //    save(e)          insert or replace; returns the previous row, or
 //                     empty; a null id throws IllegalArgumentException

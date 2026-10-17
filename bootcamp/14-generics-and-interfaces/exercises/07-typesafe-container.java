@@ -4,25 +4,22 @@
 //  run: java -cp ../../_lib/out 07-typesafe-container.java
 // ─────────────────────────────────────────────────────────────────────────
 //
-//  A request context holds values of many types, each under a typed key,
-//  so ctx.require(PORT) is an Integer with no cast at the call site.
-//  Finish Key's compact constructor (a primitive type such as int.class
-//  throws IllegalArgumentException) and Context:
+//  A request context holds values of many types under typed keys, so
+//  ctx.require(PORT) is an Integer with no cast. Finish Key's compact
+//  constructor (a primitive such as int.class throws
+//  IllegalArgumentException) and Context:
 //
 //    put(key, v)        store v; a null v REMOVES the key; a value that is
 //                       not really a T (smuggled in through a raw Key)
 //                       throws ClassCastException and stores nothing
-//    get(key)           the value, or empty
-//    getOrDefault(k, f) the value, or f
+//    get(key), getOrDefault(key, f)   the value, or empty / f
 //    require(key)       the value, or NoSuchElementException whose
 //                       message contains the key's name
 //    names()            "name:SimpleTypeName" per stored key, sorted
+//  Keys are equal when name AND type match: ("timeout", Integer) and
+//  ("timeout", String) are different keys.
 //
-//  Two keys are equal when name AND type match, so ("timeout", Integer)
-//  and ("timeout", String) are different keys.
-//
-//      put(PORT, 8080); require(PORT)  → 8080
-//      names()                         → [host:String, port:Integer]
+//      put(PORT, 8080); require(PORT) → 8080; names() → [port:Integer]
 //
 //  hint: a Class<T> object can check a value as well as name a type.
 

@@ -19,7 +19,6 @@
 //
 //  A dropped item never reaches later steps, and every step returns a NEW
 //  pipeline: the one you called it on is unchanged.
-//
 //      start().map(String::trim).map(Integer::parseInt).run(" 42 ") → 42
 //
 //  hint: Optional already has map, filter and flatMap with these rules.
